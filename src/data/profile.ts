@@ -22,24 +22,39 @@ export const coreStack: Tech[] = [
   { label: 'Figma', logo: 'Figma' },
 ];
 
-export const stackGroups: { name: string; items: Tech[] }[] = [
-  { name: 'Testing', items: [
-    { label: 'Playwright', icon: 'playwright' }, { label: 'Vitest', logo: 'Vitest' },
-    { label: 'axe', icon: 'access' }, { label: 'Visual regression', icon: 'pixel' },
+export type StackItem = Tech & { note: string };
+export type StackGroup = { name: string; key: string; items: StackItem[] };
+
+/** Tableau périodique de la stack. `note` = une ligne factuelle (tirée du parcours) affichée au survol. */
+export const stackGroups: StackGroup[] = [
+  { name: 'Testing', key: 'test', items: [
+    { label: 'Playwright', icon: 'playwright', note: 'Daily driver, first suite in 2022' },
+    { label: 'Vitest', logo: 'Vitest', note: 'Unit and browser tests' },
+    { label: 'axe', icon: 'access', note: 'Accessibility checks in CI' },
+    { label: 'Visual regression', icon: 'pixel', note: 'Screenshots rendered in Docker' },
   ] },
-  { name: 'Front-end', items: [
-    { label: 'TypeScript', logo: 'Typescript' }, { label: 'JavaScript', logo: 'Javascript' },
-    { label: 'Vue.js', logo: 'Vuedotjs' }, { label: 'React', logo: 'React' }, { label: 'Electron', logo: 'Electron' },
+  { name: 'Front-end', key: 'front', items: [
+    { label: 'TypeScript', logo: 'Typescript', note: 'Brought it into a legacy codebase' },
+    { label: 'JavaScript', logo: 'Javascript', note: 'Where the code chapter started' },
+    { label: 'Vue.js', logo: 'Vuedotjs', note: 'Led a Vue 2 to 3 migration' },
+    { label: 'React', logo: 'React', note: 'HR app used by 3,000 people' },
+    { label: 'Electron', logo: 'Electron', note: 'Desktop client, Figma to release' },
   ] },
-  { name: 'Back-end', items: [
-    { label: 'Node.js', logo: 'Nodedotjs' }, { label: 'NestJS', logo: 'Nestjs' },
+  { name: 'Back-end', key: 'back', items: [
+    { label: 'Node.js', logo: 'Nodedotjs', note: 'APIs and tooling' },
+    { label: 'NestJS', logo: 'Nestjs', note: 'Split a monolith into services' },
   ] },
-  { name: 'CI & tooling', items: [
-    { label: 'Docker', logo: 'Docker' }, { label: 'GitLab CI', logo: 'Gitlab' },
-    { label: 'GitHub Actions', logo: 'Githubactions' }, { label: 'Git', logo: 'Git' }, { label: 'Jira', logo: 'Jira' },
+  { name: 'CI & tooling', key: 'ci', items: [
+    { label: 'Docker', logo: 'Docker', note: 'Same pixels on every machine' },
+    { label: 'GitLab CI', logo: 'Gitlab', note: 'Quality gates on every merge' },
+    { label: 'GitHub Actions', logo: 'Githubactions', note: 'Tests, then deploy if green' },
+    { label: 'Git', logo: 'Git', note: 'Everything versioned' },
+    { label: 'Jira', logo: 'Jira', note: 'Test plans and defects' },
   ] },
-  { name: 'Design', items: [
-    { label: 'Figma', logo: 'Figma' }, { label: 'Storybook', logo: 'Storybook' }, { label: 'Lighthouse', logo: 'Lighthouse' },
+  { name: 'Design', key: 'design', items: [
+    { label: 'Figma', logo: 'Figma', note: 'From mockups to production UI' },
+    { label: 'Storybook', logo: 'Storybook', note: 'Library of 30+ components' },
+    { label: 'Lighthouse', logo: 'Lighthouse', note: 'Cut load time by 20%' },
   ] },
 ];
 

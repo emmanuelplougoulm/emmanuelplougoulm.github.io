@@ -1,16 +1,18 @@
 ---
 import { loadTestSummary, formatMs } from '../lib/testSummary';
-const summary = loadTestSummary();
+const summary = loadTestSummary() ?? {
+  generatedAt: new Date().toISOString(), passed: 0, failed: 0, flaky: 0, skipped: 0, durationMs: 0, tests: [], all: [],
+};
+const empty = summary.tests.length === 0;
 const shown = summary?.tests.slice(0, 6) ?? [];
 const date = summary ? new Date(summary.generatedAt).toISOString().slice(0, 10) : '';
 const all = summary?.all ?? summary?.tests ?? [];
 const suites = ['smoke', 'visual', 'a11y', 'links', 'cv'].map((name) => ({
   name,
   total: all.filter((t) => t.title.startsWith(`${name} ›`)).length,
-})).filter((s) => s.total > 0);
+}));
 ---
-{summary ? (
-  <div class="runbox">
+<div class="runbox">
     <div class="run" data-testid="test-run" aria-label={`Output of this website's own Playwright test suite on ${date}`}>
       <div class="bar"><span>$ npx playwright test</span><span>this site · ci run {date}</span></div>
       <div class="progress" aria-hidden="true"><span data-progress></span></div>
@@ -18,6 +20,7 @@ const suites = ['smoke', 'visual', 'a11y', 'links', 'cv'].map((name) => ({
         {suites.map((s) => <span class="suite done" data-suite={s.name}><i></i>{s.name} <b data-count>{s.total}/{s.total}</b></span>)}
       </div>
       <div class="lines" data-lines>
+        {empty && <div class="dim">No published run yet. CI writes the real results here on every push.</div>}
         {shown.map((t) => (
           <div><span class={t.status === 'failed' ? 'ko' : 'ok'}>{t.status === 'failed' ? '✗' : '✓'}</span>{' '}{t.title}{' '}<span class="dim">{`(${t.project}) ${formatMs(t.ms)}`}</span></div>
         ))}
@@ -33,9 +36,3 @@ const suites = ['smoke', 'visual', 'a11y', 'links', 'cv'].map((name) => ({
     </div>
     <script type="application/json" id="run-data" set:html={JSON.stringify({ passed: summary.passed, flaky: summary.flaky, durationMs: summary.durationMs, tests: all })} />
   </div>
-) : (
-  <div class="run" data-testid="test-run">
-    <div class="bar"><span>$ npx playwright test</span><span>this site</span></div>
-    <div class="dim">No published run yet. CI writes the real results here on every push.</div>
-  </div>
-)}

@@ -45,4 +45,6 @@ const summary = {
     .map(({ title, project, ms, status }) => ({ title, project, ms, status })),
 };
 fs.writeFileSync('src/data/test-summary.json', JSON.stringify(summary, null, 2) + '\n');
+// Publié avec le site : le build suivant le récupère pour rejouer le dernier run en ligne.
+fs.writeFileSync('public/test-summary.json', JSON.stringify(summary) + '\n');
 console.log(`summary: ${summary.passed} passed, ${summary.failed} failed, ${summary.flaky} flaky`);

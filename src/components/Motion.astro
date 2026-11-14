@@ -7,7 +7,7 @@
     document.querySelectorAll('.run .lines > div, .run .sum').forEach(function (el, i) { el.style.setProperty('--i', i); });
     document.querySelectorAll('.roles').forEach(function (ol) { ol.querySelectorAll('.role').forEach(function (li, k) { li.style.setProperty('--k', k); }); });
 
-    var targets = document.querySelectorAll('.sec-head, .phase, .col, .card, .post, .contact h2, .contact-links a');
+    var targets = document.querySelectorAll('.sec-head, .phase, .col, .card, .post, .contact h2, .contact-links a, .stack');
     targets.forEach(function (el, i) { el.classList.add('reveal'); el.style.setProperty('--d', i % 3); });
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {

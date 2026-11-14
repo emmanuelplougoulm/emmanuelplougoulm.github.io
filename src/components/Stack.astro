@@ -1,17 +1,47 @@
 ---
+// La stack en tableau périodique : une colonne par famille, des tuiles numérotées, le vrai logo.
 import Logo from './Logo.astro';
 import { stackGroups } from '../data/profile';
+let n = 0;
+const groups = stackGroups.map((g) => ({ ...g, items: g.items.map((t) => ({ ...t, n: ++n })) }));
 ---
 <div class="stack" data-testid="stack">
-  <div class="stack-head"><span class="mono">The stack</span><span class="stack-note">What I reach for every day, and what I shipped with before.</span></div>
-  <div class="stack-grid">
-    {stackGroups.map((g) => (
-      <div class="stack-group">
-        <span class="mono stack-name">{g.name}</span>
-        <ul>
-          {g.items.map((t) => <li class="tech"><Logo tech={t} /><span>{t.label}</span></li>)}
-        </ul>
-      </div>
-    ))}
+  <div class="stack-head">
+    <span class="mono">The stack</span>
+    <p class="stack-intro">{n} tools, {groups.length} families. Hover a tile for where it served, or a family to isolate it.</p>
+    <ul class="legend" aria-label="Families">
+      {groups.map((g) => (
+        <li><button type="button" class="fam" data-family={g.key} aria-pressed="false"><i></i>{g.name}<span>{g.items.length}</span></button></li>
+      ))}
+    </ul>
   </div>
+  <ul class="sgrid">
+    {groups.flatMap((g) => g.items.map((t) => (
+      <li class="cell" data-family={g.key} style={`--n:${t.n}`} tabindex="0">
+        <span class="cell-logo"><Logo tech={t} /></span>
+        <span class="cell-name">{t.label}</span>
+        <span class="cell-meta"><span class="cell-fam">{g.name}</span><span class="cell-note">{t.note}</span></span>
+      </li>
+    )))}
+  </ul>
 </div>
+<script is:inline>
+  (function () {
+    var stack = document.querySelector('[data-testid="stack"]');
+    if (!stack) return;
+    var buttons = stack.querySelectorAll('.fam');
+    function focus(key) {
+      if (key) stack.setAttribute('data-focus', key); else stack.removeAttribute('data-focus');
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-family') === key)); });
+    }
+    buttons.forEach(function (b) {
+      var key = b.getAttribute('data-family');
+      b.addEventListener('mouseenter', function () { if (!stack.dataset.locked) focus(key); });
+      b.addEventListener('mouseleave', function () { if (!stack.dataset.locked) focus(null); });
+      b.addEventListener('click', function () {
+        var same = stack.dataset.locked === key;
+        if (same) { delete stack.dataset.locked; focus(null); } else { stack.dataset.locked = key; focus(key); }
+      });
+    });
+  })();
+</script>

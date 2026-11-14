@@ -40,6 +40,10 @@ jobs:
       - name: Install browsers
         run: npx playwright install --with-deps chromium webkit
 
+      # Le premier build affiche le dernier run publié en ligne (s'il existe) ; il est remplacé après les tests.
+      - name: Fetch last published run
+        run: curl -fsSL https://emmanuelplougoulm.github.io/test-summary.json -o src/data/test-summary.json || echo "no published run yet"
+
       - name: Build
         run: npm run build
 

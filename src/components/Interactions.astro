@@ -90,6 +90,7 @@
           run.classList.remove('replaying');
           replayBtn.disabled = false;
           replayBtn.lastChild.textContent = 'Replay the last run';
+          Object.keys(suites).forEach(function (k) { setSuite(k, 'done'); });
           setSum('passed');
           return;
         }
