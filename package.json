@@ -1,0 +1,20 @@
+{
+  "name": "emmanuelplougoulm.github.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --port 4322",
+    "test": "playwright test",
+    "test:update": "playwright test --update-snapshots",
+    "summary": "node scripts/summarize.mjs"
+  },
+  "dependencies": {
+    "astro": "5.18.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.1"
+  }
+}

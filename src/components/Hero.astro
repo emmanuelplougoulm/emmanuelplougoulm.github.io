@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import TestRun from './TestRun.astro';
+import { tools, links } from '../data/profile';
+---
+<div class="hero" id="top">
+  <div class="wrap">
+    <p class="kicker">QA ENGINEER / SDET · PARIS</p>
+    <div class="grid">
+      <h1>Testing like a <em>developer</em>.<br />Seeing like a <em>designer</em>.</h1>
+    </div>
+    <div class="grid hero-foot">
+      <div class="intro">
+        <p>I build <strong>Playwright test automation</strong> that catches what users actually notice: broken flows, visual regressions, accessibility gaps. Seven years in design, five in code, now in quality.</p>
+        <div class="cta">
+          <a class="btn primary" href="#work">See the work ↓</a>
+          {links.cv && <a class="btn" href={links.cv}>CV (PDF)</a>}
+          {!links.cv && <a class="btn" href={links.linkedin}>LinkedIn</a>}
+        </div>
+      </div>
+      <TestRun />
+    </div>
+    <div class="toolbox">
+      <span class="lbl">Daily tools</span>
+      {tools.map((t) => <span class="t"><Icon name={t.icon} />{t.label}</span>)}
+    </div>
+  </div>
+</div>

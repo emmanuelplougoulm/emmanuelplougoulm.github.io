@@ -1,0 +1,29 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { phases } from '../data/profile';
+---
+<section id="path">
+  <div class="wrap">
+    <SectionHead num="01" slug="path" icon="branch" intro="Three careers that turned out to be one: making interfaces people can trust.">
+      Design, then code, then <em>quality</em>.
+    </SectionHead>
+    {phases.map((phase) => (
+      <>
+        <div class:list={['grid', 'phase', { now: phase.current }]}>
+          <div class="phase-label"><b>{phase.name}</b><span class="branch"><Icon name="branch" />{phase.branch}</span></div>
+          <ol class="roles">
+            {phase.roles.map((r) => (
+              <li class="role">
+                <span class="when">{r.when}</span>
+                <div class="what"><b>{r.title}</b><span>{r.where}</span></div>
+                <p class="did">{r.did}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+        {phase.quote && <p class="grid"><span class="bridge"><Icon name="quote" /><q>{phase.quote}</q></span></p>}
+      </>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,42 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { featured, projects } from '../data/profile';
+---
+<section id="work">
+  <div class="wrap">
+    <SectionHead num="03" slug="work" icon="box" intro="Work I do for employers stays with them. Everything here is my own, and it runs in CI.">
+      Public, running, <em>checkable</em>.
+    </SectionHead>
+    <div class="work">
+      <article class="card feature">
+        <div>
+          <div class="card-top"><span class:list={['badge', { soon: featured.badgeSoon }]}><span>{featured.badge[0]}</span><span>{featured.badge[1]}</span></span></div>
+          <h3 style="margin-top:12px">{featured.title}</h3>
+          <p style="margin-top:10px">{featured.description}</p>
+          <div class="chips" style="margin-top:16px">{featured.stack.map((s) => <span class="chip">{s}</span>)}</div>
+        </div>
+        <div>
+          <div class="stats">
+            <div><b>—</b><span>E2E cases</span></div>
+            <div><b>—</b><span>Visual cases</span></div>
+            <div><b>—</b><span>API cases</span></div>
+          </div>
+          <dl class="meta" style="margin-top:18px">
+            {featured.meta.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}
+          </dl>
+          <p class="policy">Figures will come from the last published CI run, never typed by hand.</p>
+        </div>
+      </article>
+      {projects.map((p) => (
+        <a class="card half" href={p.url}>
+          <div class="card-top"><span class="badge"><span>{p.badge[0]}</span><span>{p.badge[1]}</span></span>{p.icon && <Icon name={p.icon} />}</div>
+          <h3>{p.title}</h3>
+          <p>{p.description}</p>
+          <div class="chips">{p.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          <span class="more">{p.linkLabel} <Icon name="arrow" /></span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

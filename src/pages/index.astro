@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Path from '../components/Path.astro';
+import Practice from '../components/Practice.astro';
+import Work from '../components/Work.astro';
+import Writing from '../components/Writing.astro';
+import Contact from '../components/Contact.astro';
+import { links, posts } from '../data/profile';
+---
+<Base
+  title="Emmanuel Plougoulm · SDET"
+  description="SDET in Paris. Playwright and TypeScript automation, visual regression, accessibility. Former developer and graphic designer."
+>
+  <a class="skip" href="#path">Skip to content</a>
+  <Header showWriting={posts.length > 0} />
+  <main>
+    <Hero />
+    <Path />
+    <Practice />
+    <Work />
+    <Writing />
+    <Contact />
+  </main>
+  <footer>
+    <div class="wrap">
+      <span>© {new Date().getFullYear()} Emmanuel Plougoulm · Paris</span>
+      <span>Built with Astro · tested with Playwright on every push · <a href={links.source}>source</a></span>
+    </div>
+  </footer>
+</Base>

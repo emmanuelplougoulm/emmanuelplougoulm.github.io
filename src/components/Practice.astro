@@ -1,0 +1,77 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+const tab = (name: string) => name;
+---
+<section id="practice">
+  <div class="wrap">
+    <SectionHead num="02" slug="practice" icon="layers" intro="Each background gives me a different way to look at the same screen.">
+      How I <em>test</em>.
+    </SectionHead>
+    <div class="cols">
+      <article class="col">
+        <div class="col-body">
+          <span class="tag mono"><Icon name="eye" />Design</span>
+          <h3>Seeing what users see.</h3>
+          <p class="lead">A 4px shift is a bug.</p>
+          <ul>
+            <li><Icon name="check" />Visual regression in Docker</li>
+            <li><Icon name="check" />Design system consistency</li>
+            <li><Icon name="check" />Accessibility with axe</li>
+          </ul>
+        </div>
+        <div class="col-art"><div class="file">
+          <div class="tabbar"><Icon name="file" /><b>{tab('hero.png — visual diff')}</b><span class="dots"><span></span><span></span><span></span></span></div>
+          <div class="diff" role="img" aria-label="Illustration of a visual regression: the button moved compared with the baseline">
+            <div class="shot"><span class="lbl">Baseline</span><div class="h"></div><div class="l"></div><div class="l s"></div><div class="b"></div></div>
+            <div class="shot actual"><span class="lbl">Actual</span><div class="h"></div><div class="l"></div><div class="l s"></div><div class="b"></div><div class="hit"></div><span class="tagdiff">DIFF</span></div>
+            <span class="diff-note">✗ 1.8% pixels differ · button.cta offset +8px</span>
+          </div>
+        </div></div>
+      </article>
+      <article class="col">
+        <div class="col-body">
+          <span class="tag mono"><Icon name="code" />Code</span>
+          <h3>Reading the code I test.</h3>
+          <p class="lead">Tests are software too.</p>
+          <ul>
+            <li><Icon name="check" />Fixtures and Page Objects</li>
+            <li><Icon name="check" />API tests and contracts</li>
+            <li><Icon name="check" />CI quality gates</li>
+          </ul>
+        </div>
+        <div class="col-art"><div class="file">
+          <div class="tabbar"><Icon name="file" /><b>checkout.spec.ts</b><span class="dots"><span></span><span></span><span></span></span></div>
+<pre class="code"><span class="k">test</span>(<span class="s">'checkout keeps the cart'</span>, <span class="k">async</span> ({'{'} <span class="f">cart</span>, <span class="f">checkout</span> {'}'}) =&gt; {'{'}
+  <span class="k">await</span> cart.<span class="f">add</span>(<span class="s">'Blue T-shirt'</span>);
+  <span class="k">await</span> checkout.<span class="f">open</span>();
+  <span class="k">await</span> <span class="f">expect</span>(checkout.lines)
+    .<span class="f">toHaveCount</span>(<span class="s">1</span>);
+{'}'});</pre>
+        </div></div>
+      </article>
+      <article class="col">
+        <div class="col-body">
+          <span class="tag mono"><Icon name="shield" />Quality</span>
+          <h3>Knowing what to test, and why.</h3>
+          <p class="lead">Coverage follows risk.</p>
+          <ul>
+            <li><Icon name="check" />Risk-based test design</li>
+            <li><Icon name="check" />Regression strategy</li>
+            <li><Icon name="check" />ISTQB® foundations</li>
+          </ul>
+        </div>
+        <div class="col-art"><div class="file">
+          <div class="tabbar"><Icon name="file" /><b>trust.feature</b><span class="dots"><span></span><span></span><span></span></span></div>
+<pre class="code"><span class="k">Feature:</span> Trustworthy interfaces
+
+  <span class="k">Scenario:</span> A change reaches users
+    <span class="k">Given</span> a pull request on main
+    <span class="k">When</span> the suite runs in CI
+    <span class="k">Then</span> flows, pixels and a11y pass
+    <span class="k">And</span> <span class="c">only then</span> it ships</pre>
+        </div></div>
+      </article>
+    </div>
+  </div>
+</section>

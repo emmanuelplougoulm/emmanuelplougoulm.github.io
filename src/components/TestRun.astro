@@ -1,0 +1,23 @@
+---
+import { loadTestSummary, formatMs } from '../lib/testSummary';
+const summary = loadTestSummary();
+const shown = summary?.tests.slice(0, 6) ?? [];
+const date = summary ? new Date(summary.generatedAt).toISOString().slice(0, 10) : '';
+---
+{summary ? (
+  <div class="run" role="img" aria-label={`Output of this website's own Playwright test suite on ${date}: ${summary.passed} passed, ${summary.failed} failed`} data-testid="test-run">
+    <div class="bar"><span>$ npx playwright test</span><span>this site · ci run {date}</span></div>
+    {shown.map((t) => (
+      <div><span class={t.status === 'failed' ? 'ko' : 'ok'}>{t.status === 'failed' ? '✗' : '✓'}</span>{' '}{t.title}{' '}<span class="dim">{`(${t.project}) ${formatMs(t.ms)}`}</span></div>
+    ))}
+    <div class="sum">
+      <span class="ok">{summary.passed} passed</span>
+      <span class="dim">{` · ${summary.flaky} flaky · ${formatMs(summary.durationMs)} · deployed only if green`}</span>
+    </div>
+  </div>
+) : (
+  <div class="run" data-testid="test-run">
+    <div class="bar"><span>$ npx playwright test</span><span>this site</span></div>
+    <div class="dim">No published run yet. CI writes the real results here on every push.</div>
+  </div>
+)}

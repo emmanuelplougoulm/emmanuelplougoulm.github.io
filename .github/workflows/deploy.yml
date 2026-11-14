@@ -1,0 +1,95 @@
+name: Test and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Regenerate all visual baselines'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      # Liste de mots interdits (noms internes), stockée en secret du repo, jamais dans le code.
+      BANNED_WORDS: ${{ secrets.BANNED_WORDS }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Build
+        run: npm run build
+
+      - name: Playwright tests
+        run: |
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            npx playwright test --update-snapshots=all
+          else
+            # Les références manquantes sont créées (premier passage), les existantes sont comparées.
+            npx playwright test --update-snapshots=missing
+          fi
+
+      - name: Commit new visual baselines
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -n "$(git status --porcelain tests)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add tests
+            git commit -m "chore: update visual baselines [skip ci]"
+            git push
+          fi
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
+
+      # Les tests sont verts : on reconstruit la page avec les vrais résultats affichés dans l'accroche.
+      - name: Summarize results
+        run: npm run summary
+
+      - name: Build with test results
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
