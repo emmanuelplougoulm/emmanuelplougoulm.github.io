@@ -42,4 +42,24 @@ test.describe('smoke', () => {
     const banned = (process.env.BANNED_WORDS ?? '').split(',').map((w) => w.trim().toLowerCase()).filter(Boolean);
     for (const word of banned) expect(text, `forbidden word found`).not.toContain(word);
   });
+  test('reduced motion keeps every block visible', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const hidden = await page.locator('.reveal').evaluateAll((els) => els.filter((e) => getComputedStyle(e).opacity !== '1').length);
+    expect(hidden).toBe(0);
+  });
+
+  test('blocks reveal when scrolled into view', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+    const title = page.locator('#contact h2');
+    await title.scrollIntoViewIfNeeded();
+    await expect(title).toHaveClass(/\bin\b/);
+    await expect(title).toHaveCSS('opacity', '1');
+  });
+  test('no horizontal scroll at any width', async ({ page }) => {
+    await page.goto('/');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });

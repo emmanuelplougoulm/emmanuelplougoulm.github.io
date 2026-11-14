@@ -15,7 +15,7 @@ import { phases } from '../data/profile';
           <ol class="roles">
             {phase.roles.map((r) => (
               <li class="role">
-                <span class="when">{r.when}</span>
+                <span class="when">{r.when}{phase.current && r === phase.roles[0] && <span class="head" title="Current position">HEAD</span>}</span>
                 <div class="what"><b>{r.title}</b><span>{r.where}</span></div>
                 <p class="did">{r.did}</p>
               </li>

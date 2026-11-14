@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+import { links } from '../data/profile';
 interface Props { showWriting: boolean }
 const { showWriting } = Astro.props;
 ---
@@ -12,6 +14,10 @@ const { showWriting } = Astro.props;
       {showWriting && <a href="#writing">Writing</a>}
       <a href="#contact">Contact</a>
     </nav>
+    <div class="read-progress" aria-hidden="true"></div>
+    <div class="top-actions">
+    {links.cv && <a class="cv-btn mono" href={links.cv} download aria-label="Download CV (PDF)"><Icon name="download" />CV</a>}
     <button class="theme mono" type="button" id="theme" aria-label="Toggle colour theme">Light / Dark</button>
+    </div>
   </div>
 </header>

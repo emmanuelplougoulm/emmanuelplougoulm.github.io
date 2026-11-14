@@ -3,17 +3,35 @@ import { loadTestSummary, formatMs } from '../lib/testSummary';
 const summary = loadTestSummary();
 const shown = summary?.tests.slice(0, 6) ?? [];
 const date = summary ? new Date(summary.generatedAt).toISOString().slice(0, 10) : '';
+const all = summary?.all ?? summary?.tests ?? [];
+const suites = ['smoke', 'visual', 'a11y', 'links', 'cv'].map((name) => ({
+  name,
+  total: all.filter((t) => t.title.startsWith(`${name} ›`)).length,
+})).filter((s) => s.total > 0);
 ---
 {summary ? (
-  <div class="run" role="img" aria-label={`Output of this website's own Playwright test suite on ${date}: ${summary.passed} passed, ${summary.failed} failed`} data-testid="test-run">
-    <div class="bar"><span>$ npx playwright test</span><span>this site · ci run {date}</span></div>
-    {shown.map((t) => (
-      <div><span class={t.status === 'failed' ? 'ko' : 'ok'}>{t.status === 'failed' ? '✗' : '✓'}</span>{' '}{t.title}{' '}<span class="dim">{`(${t.project}) ${formatMs(t.ms)}`}</span></div>
-    ))}
-    <div class="sum">
-      <span class="ok">{summary.passed} passed</span>
-      <span class="dim">{` · ${summary.flaky} flaky · ${formatMs(summary.durationMs)} · deployed only if green`}</span>
+  <div class="runbox">
+    <div class="run" data-testid="test-run" aria-label={`Output of this website's own Playwright test suite on ${date}`}>
+      <div class="bar"><span>$ npx playwright test</span><span>this site · ci run {date}</span></div>
+      <div class="progress" aria-hidden="true"><span data-progress></span></div>
+      <div class="suites" aria-hidden="true">
+        {suites.map((s) => <span class="suite done" data-suite={s.name}><i></i>{s.name} <b data-count>{s.total}/{s.total}</b></span>)}
+      </div>
+      <div class="lines" data-lines>
+        {shown.map((t) => (
+          <div><span class={t.status === 'failed' ? 'ko' : 'ok'}>{t.status === 'failed' ? '✗' : '✓'}</span>{' '}{t.title}{' '}<span class="dim">{`(${t.project}) ${formatMs(t.ms)}`}</span></div>
+        ))}
+      </div>
+      <div class="sum" data-sum aria-live="polite">
+        <span class="ok">{summary.passed} passed</span>
+        <span class="dim">{` · ${summary.flaky} flaky · ${formatMs(summary.durationMs)} · deployed only if green`}</span>
+      </div>
     </div>
+    <div class="run-actions">
+      <button type="button" class="btn small" data-replay><svg class="i" aria-hidden="true"><use href="#i-play" /></svg>Replay the last run</button>
+      <button type="button" class="btn small ghost" data-break aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-pixel" /></svg><span data-break-label>Break this page</span></button>
+    </div>
+    <script type="application/json" id="run-data" set:html={JSON.stringify({ passed: summary.passed, flaky: summary.flaky, durationMs: summary.durationMs, tests: all })} />
   </div>
 ) : (
   <div class="run" data-testid="test-run">

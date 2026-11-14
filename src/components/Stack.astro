@@ -1,0 +1,17 @@
+---
+import Logo from './Logo.astro';
+import { stackGroups } from '../data/profile';
+---
+<div class="stack" data-testid="stack">
+  <div class="stack-head"><span class="mono">The stack</span><span class="stack-note">What I reach for every day, and what I shipped with before.</span></div>
+  <div class="stack-grid">
+    {stackGroups.map((g) => (
+      <div class="stack-group">
+        <span class="mono stack-name">{g.name}</span>
+        <ul>
+          {g.items.map((t) => <li class="tech"><Logo tech={t} /><span>{t.label}</span></li>)}
+        </ul>
+      </div>
+    ))}
+  </div>
+</div>

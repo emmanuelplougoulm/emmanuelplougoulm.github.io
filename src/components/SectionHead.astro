@@ -3,7 +3,7 @@ import Icon from './Icon.astro';
 interface Props { num: string; slug: string; icon: string; intro: string }
 const { num, slug, icon, intro } = Astro.props;
 ---
-<div class="grid sec-head">
+<div class="grid sec-head" data-num={num}>
   <span class="sec-num mono"><span class="ico"><Icon name={icon} /></span>{num} / {slug}</span>
   <h2><slot /></h2>
   <p>{intro}</p>

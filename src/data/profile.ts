@@ -6,17 +6,53 @@ export const links = {
   github: 'https://github.com/emmanuelplougoulm',
   source: 'https://github.com/emmanuelplougoulm/emmanuelplougoulm.github.io',
   email: '', // adresse pro dédiée, à ajouter quand elle existe
-  cv: '', // chemin du CV PDF (ex. '/cv-emmanuel-plougoulm.pdf'), vide = bouton masqué
+  cv: '/cv-emmanuel-plougoulm.pdf', // généré par Playwright au build (scripts/cv-pdf.mjs)
 };
 
-export const tools = [
-  { icon: 'play', label: 'Playwright' },
-  { icon: 'code', label: 'TypeScript' },
-  { icon: 'pixel', label: 'Visual regression' },
-  { icon: 'access', label: 'axe' },
-  { icon: 'docker', label: 'Docker' },
-  { icon: 'git', label: 'CI/CD' },
+/** Technos phares. `logo` = nom d'icône Simple Icons (sans le préfixe « si »), ou `icon` = icône maison. */
+export type Tech = { label: string; logo?: string; icon?: string };
+
+export const coreStack: Tech[] = [
+  { label: 'Playwright', icon: 'playwright' },
+  { label: 'TypeScript', logo: 'Typescript' },
+  { label: 'Vue.js', logo: 'Vuedotjs' },
+  { label: 'React', logo: 'React' },
+  { label: 'Node.js', logo: 'Nodedotjs' },
+  { label: 'Docker', logo: 'Docker' },
+  { label: 'Figma', logo: 'Figma' },
 ];
+
+export const stackGroups: { name: string; items: Tech[] }[] = [
+  { name: 'Testing', items: [
+    { label: 'Playwright', icon: 'playwright' }, { label: 'Vitest', logo: 'Vitest' },
+    { label: 'axe', icon: 'access' }, { label: 'Visual regression', icon: 'pixel' },
+  ] },
+  { name: 'Front-end', items: [
+    { label: 'TypeScript', logo: 'Typescript' }, { label: 'JavaScript', logo: 'Javascript' },
+    { label: 'Vue.js', logo: 'Vuedotjs' }, { label: 'React', logo: 'React' }, { label: 'Electron', logo: 'Electron' },
+  ] },
+  { name: 'Back-end', items: [
+    { label: 'Node.js', logo: 'Nodedotjs' }, { label: 'NestJS', logo: 'Nestjs' },
+  ] },
+  { name: 'CI & tooling', items: [
+    { label: 'Docker', logo: 'Docker' }, { label: 'GitLab CI', logo: 'Gitlab' },
+    { label: 'GitHub Actions', logo: 'Githubactions' }, { label: 'Git', logo: 'Git' }, { label: 'Jira', logo: 'Jira' },
+  ] },
+  { name: 'Design', items: [
+    { label: 'Figma', logo: 'Figma' }, { label: 'Storybook', logo: 'Storybook' }, { label: 'Lighthouse', logo: 'Lighthouse' },
+  ] },
+];
+
+/** Pour le CV. */
+export const cvSummary =
+  'SDET in Paris, working with Playwright and TypeScript. Former fullstack JS/TS developer and graphic designer, I test front-ends the way they were built and the way they are seen: functional flows, visual regression and accessibility.';
+export const certifications = [
+  { when: '2025', title: 'ISTQB® Certified Tester, Foundation Level (CTFL)' },
+  { when: '2025', title: 'Playwright: web automation testing (training certificate)' },
+  { when: 'In progress', title: 'ISTQB® CTAL Test Automation Engineering' },
+];
+export const education = [{ title: 'Wild Code School', detail: 'Web development' }];
+export const languages = 'French · English';
 
 export type Role = { when: string; title: string; where: string; did: string };
 export type Phase = {

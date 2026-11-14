@@ -1,0 +1,178 @@
+<script is:inline>
+  // Interactions de l'accroche : replay du dernier run CI, « Break this page », grille qui suit le curseur.
+  (function () {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hero = document.querySelector('.hero');
+    var run = document.querySelector('[data-testid="test-run"]');
+    var dataEl = document.getElementById('run-data');
+    if (!hero || !run || !dataEl) return;
+
+    var data = JSON.parse(dataEl.textContent);
+    var lines = run.querySelector('[data-lines]');
+    var sum = run.querySelector('[data-sum]');
+    var bar = run.querySelector('[data-progress]');
+    var replayBtn = document.querySelector('[data-replay]');
+    var breakBtn = document.querySelector('[data-break]');
+    var breakLabel = document.querySelector('[data-break-label]');
+    var broken = false;
+    var overlay = null;
+
+    var suites = {};
+    run.querySelectorAll('[data-suite]').forEach(function (el) {
+      var name = el.getAttribute('data-suite');
+      suites[name] = {
+        el: el,
+        count: el.querySelector('[data-count]'),
+        total: data.tests.filter(function (t) { return t.title.indexOf(name + ' ›') === 0; }).length,
+        done: 0,
+      };
+    });
+
+    function fmt(ms) { return ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : Math.round(ms) + 'ms'; }
+
+    function addLine(ok, title, meta) {
+      var d = document.createElement('div');
+      var mark = document.createElement('span');
+      mark.className = ok ? 'ok' : 'ko';
+      mark.textContent = ok ? '✓' : '✗';
+      var dim = document.createElement('span');
+      dim.className = 'dim';
+      dim.textContent = meta;
+      d.append(mark, ' ' + title + ' ', dim);
+      lines.appendChild(d);
+      while (lines.children.length > 40) lines.removeChild(lines.firstChild);
+    }
+
+    function setSum(state) {
+      sum.textContent = '';
+      var lead = document.createElement('span');
+      var rest = document.createElement('span');
+      rest.className = 'dim';
+      if (state === 'running') {
+        lead.className = 'dim';
+        lead.textContent = 'running ' + data.tests.length + ' tests…';
+      } else if (state === 'failed') {
+        lead.className = 'ko';
+        lead.textContent = '1 failed';
+        rest.textContent = ' · ' + (data.passed - 1) + ' passed · deploy blocked';
+      } else {
+        lead.className = 'ok';
+        lead.textContent = data.passed + ' passed';
+        rest.textContent = ' · ' + data.flaky + ' flaky · ' + fmt(data.durationMs) + ' · deployed only if green';
+      }
+      sum.append(lead, rest);
+    }
+
+    function setSuite(name, state, done) {
+      var s = suites[name];
+      if (!s) return;
+      s.el.className = 'suite ' + state;
+      if (typeof done === 'number') s.done = done;
+      s.count.textContent = s.done + '/' + s.total;
+    }
+
+    // 1. Rejouer le dernier run publié par le CI, test par test, avec ses vraies durées (accélérées).
+    replayBtn.addEventListener('click', function () {
+      if (run.classList.contains('replaying')) return;
+      if (broken) restore(true);
+      run.classList.add('replaying');
+      replayBtn.disabled = true;
+      replayBtn.lastChild.textContent = 'Running…';
+      lines.textContent = '';
+      setSum('running');
+      Object.keys(suites).forEach(function (n) { setSuite(n, 'waiting', 0); });
+      bar.style.transform = 'scaleX(0)';
+
+      var i = 0;
+      var n = data.tests.length;
+      (function next() {
+        if (i >= n) {
+          run.classList.remove('replaying');
+          replayBtn.disabled = false;
+          replayBtn.lastChild.textContent = 'Replay the last run';
+          setSum('passed');
+          return;
+        }
+        var t = data.tests[i++];
+        var name = t.title.split(' › ')[0];
+        if (suites[name] && suites[name].done === 0) setSuite(name, 'running');
+        var delay = reduce ? 0 : Math.min(420, Math.max(70, t.ms / 6));
+        setTimeout(function () {
+          addLine(t.status !== 'failed', t.title, '(' + t.project + ') ' + fmt(t.ms));
+          var s = suites[name];
+          if (s) setSuite(name, s.done + 1 === s.total ? 'done' : 'running', s.done + 1);
+          bar.style.transform = 'scaleX(' + i / n + ')';
+          next();
+        }, delay);
+      })();
+    });
+
+    // 2. « Break this page » : une vraie régression visuelle, détectée et signalée en direct.
+    function placeOverlay() {
+      var target = document.querySelector('.cta .btn.primary');
+      var r = target.getBoundingClientRect();
+      var h = hero.getBoundingClientRect();
+      overlay.style.left = r.left - h.left - 14 + 'px';
+      overlay.style.top = r.top - h.top - 12 + 'px';
+      overlay.style.width = r.width + 28 + 'px';
+      overlay.style.height = r.height + 24 + 'px';
+    }
+
+    function breakPage() {
+      broken = true;
+      document.body.classList.add('broken');
+      breakBtn.setAttribute('aria-pressed', 'true');
+      breakLabel.textContent = 'Restore baseline';
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'diff-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        var tag = document.createElement('span');
+        tag.textContent = 'DIFF';
+        overlay.appendChild(tag);
+        hero.appendChild(overlay);
+      }
+      setTimeout(function () {
+        placeOverlay();
+        overlay.classList.add('on');
+        addLine(false, 'visual › hero matches baseline', '(chromium) button.cta moved 8px, heading spacing changed');
+        setSuite('visual', 'failed');
+        setSum('failed');
+      }, reduce ? 0 : 480);
+    }
+
+    function restore(silent) {
+      broken = false;
+      document.body.classList.remove('broken');
+      breakBtn.setAttribute('aria-pressed', 'false');
+      breakLabel.textContent = 'Break this page';
+      if (overlay) overlay.classList.remove('on');
+      if (silent) return;
+      addLine(true, 'visual › hero matches baseline', '(chromium) back to baseline');
+      setSuite('visual', 'done');
+      setSum('passed');
+    }
+
+    breakBtn.addEventListener('click', function () {
+      if (run.classList.contains('replaying')) return;
+      broken ? restore(false) : breakPage();
+    });
+    addEventListener('resize', function () { if (broken && overlay) placeOverlay(); });
+
+    // 3. La grille se révèle autour du curseur (souris uniquement, animations non réduites).
+    if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      var frame = 0;
+      hero.addEventListener('pointermove', function (e) {
+        if (frame) return;
+        frame = requestAnimationFrame(function () {
+          frame = 0;
+          var r = hero.getBoundingClientRect();
+          hero.style.setProperty('--mx', e.clientX - r.left + 'px');
+          hero.style.setProperty('--my', e.clientY - r.top + 'px');
+          hero.classList.add('lit');
+        });
+      });
+      hero.addEventListener('pointerleave', function () { hero.classList.remove('lit'); });
+    }
+  })();
+</script>

@@ -1,0 +1,56 @@
+<script is:inline>
+  // Micro-interactions : apparition au défilement, lecture du bloc de tests, section active dans la navigation.
+  (function () {
+    var root = document.documentElement;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) root.classList.add('motion');
+
+    document.querySelectorAll('.run .lines > div, .run .sum').forEach(function (el, i) { el.style.setProperty('--i', i); });
+    document.querySelectorAll('.roles').forEach(function (ol) { ol.querySelectorAll('.role').forEach(function (li, k) { li.style.setProperty('--k', k); }); });
+
+    var targets = document.querySelectorAll('.sec-head, .phase, .col, .card, .post, .contact h2, .contact-links a');
+    targets.forEach(function (el, i) { el.classList.add('reveal'); el.style.setProperty('--d', i % 3); });
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { rootMargin: '0px 0px -8% 0px' });
+      targets.forEach(function (t) { io.observe(t); });
+
+      var links = {};
+      document.querySelectorAll('nav.links a').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          Object.values(links).forEach(function (a) { a.removeAttribute('aria-current'); });
+          if (links[e.target.id]) links[e.target.id].setAttribute('aria-current', 'location');
+        });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      document.querySelectorAll('main section[id]').forEach(function (s) { spy.observe(s); });
+    } else {
+      targets.forEach(function (t) { t.classList.add('in'); });
+    }
+
+    // En-tête : état « défilé » et barre de progression de lecture.
+    var header = document.querySelector('header.top');
+    var progress = document.querySelector('.read-progress');
+    var ticking = false;
+    function onScroll() {
+      ticking = false;
+      var max = document.documentElement.scrollHeight - innerHeight;
+      if (header) header.classList.toggle('scrolled', scrollY > 8);
+      if (progress) progress.style.setProperty('--p', max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0);
+    }
+    addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+    onScroll();
+
+    // Reflet qui suit la souris sur les cartes.
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.querySelectorAll('.card, .col').forEach(function (el) {
+        el.addEventListener('pointermove', function (e) {
+          var r = el.getBoundingClientRect();
+          el.style.setProperty('--x', e.clientX - r.left + 'px');
+          el.style.setProperty('--y', e.clientY - r.top + 'px');
+        });
+      });
+    }
+  })();
+</script>

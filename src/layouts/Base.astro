@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import IconSprite from '../components/IconSprite.astro';
+import Motion from '../components/Motion.astro';
+import Interactions from '../components/Interactions.astro';
 interface Props { title: string; description: string }
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -28,6 +30,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <body>
     <IconSprite />
     <slot />
+    <Motion />
+    <Interactions />
     <script is:inline>
       (function () {
         var root = document.documentElement, btn = document.getElementById('theme');
@@ -35,8 +39,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         btn.addEventListener('click', function () {
           var cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           var next = cur === 'dark' ? 'light' : 'dark';
-          root.setAttribute('data-theme', next);
-          try { localStorage.setItem('theme', next); } catch (e) {}
+          function apply() {
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+          }
+          var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (!document.startViewTransition || reduce) return apply();
+          // Le nouveau thème se dévoile en cercle à partir du bouton.
+          var r = btn.getBoundingClientRect();
+          var x = r.left + r.width / 2, y = r.top + r.height / 2;
+          var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+          document.startViewTransition(apply).ready.then(function () {
+            root.animate(
+              { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+              { duration: 550, easing: 'cubic-bezier(.2,.7,.2,1)', pseudoElement: '::view-transition-new(root)' }
+            );
+          });
         });
       })();
     </script>

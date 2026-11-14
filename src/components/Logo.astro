@@ -1,0 +1,14 @@
+---
+// Logo de techno : Simple Icons (CC0) ou icône maison.
+import * as icons from 'simple-icons';
+import Icon from './Icon.astro';
+import type { Tech } from '../data/profile';
+interface Props { tech: Tech }
+const { tech } = Astro.props;
+const si = tech.logo ? (icons as Record<string, { path: string; hex: string }>)[`si${tech.logo}`] : undefined;
+---
+{si ? (
+  <svg class="logo" viewBox="0 0 24 24" aria-hidden="true" style={`--brand:#${si.hex}`}><path d={si.path} /></svg>
+) : (
+  <span class="logo logo-own" style={tech.icon === 'playwright' ? '--brand:#2EAD33' : '--brand:var(--accent)'}><Icon name={tech.icon ?? 'code'} /></span>
+)}

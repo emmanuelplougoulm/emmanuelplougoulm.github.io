@@ -24,7 +24,7 @@ for (const s of report.suites) walk(s);
 const count = (st) => tests.filter((t) => t.status === st).length;
 // Une ligne par test (projet chromium en priorité) pour l'affichage.
 const seen = new Set();
-const ORDER = ['smoke', 'visual', 'a11y', 'links'];
+const ORDER = ['smoke', 'visual', 'a11y', 'links', 'cv'];
 const rank = (t) => (t.project === 'chromium' ? 0 : 10) + Math.max(0, ORDER.indexOf(t.title.split(' › ')[0]));
 const display = [...tests]
   .sort((a, b) => rank(a) - rank(b))
@@ -38,6 +38,11 @@ const summary = {
   skipped: count('skipped'),
   durationMs: Math.round(report.stats?.duration ?? 0),
   tests: display.map(({ title, project, ms, status }) => ({ title, project, ms, status })),
+  // Run complet, rejoué test par test par le bouton « Replay the last run ».
+  all: tests
+    .filter((t) => t.status !== 'skipped')
+    .sort((a, b) => rank(a) - rank(b))
+    .map(({ title, project, ms, status }) => ({ title, project, ms, status })),
 };
 fs.writeFileSync('src/data/test-summary.json', JSON.stringify(summary, null, 2) + '\n');
 console.log(`summary: ${summary.passed} passed, ${summary.failed} failed, ${summary.flaky} flaky`);

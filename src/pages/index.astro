@@ -8,6 +8,11 @@ import Work from '../components/Work.astro';
 import Writing from '../components/Writing.astro';
 import Contact from '../components/Contact.astro';
 import { links, posts } from '../data/profile';
+import { loadTestSummary } from '../lib/testSummary';
+import Socials from '../components/Socials.astro';
+const summary = loadTestSummary();
+const sha = (process.env.GITHUB_SHA ?? '').slice(0, 7) || 'local';
+const builtAt = new Date().toISOString().slice(0, 10);
 ---
 <Base
   title="Emmanuel Plougoulm · SDET"
@@ -25,8 +30,14 @@ import { links, posts } from '../data/profile';
   </main>
   <footer>
     <div class="wrap">
-      <span>© {new Date().getFullYear()} Emmanuel Plougoulm · Paris</span>
-      <span>Built with Astro · tested with Playwright on every push · <a href={links.source}>source</a></span>
+      <span class="foot-left">© {new Date().getFullYear()} Emmanuel Plougoulm · Paris <Socials size="sm" /></span>
+      <span class="build" data-testid="build-info">
+        <span class="dot" aria-hidden="true"></span>
+        <span>build <a href={sha === 'local' ? links.source : `${links.source}/commit/${process.env.GITHUB_SHA}`}>{sha}</a></span>
+        <span>· {builtAt}</span>
+        {summary && <span>· {summary.passed}/{summary.passed + summary.failed} tests green</span>}
+        <span>· Astro + Playwright · <a href={links.source}>source</a></span>
+      </span>
     </div>
   </footer>
 </Base>

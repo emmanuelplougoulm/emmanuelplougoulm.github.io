@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
+import Stack from './Stack.astro';
 const tab = (name: string) => name;
 ---
 <section id="practice">
@@ -42,7 +43,7 @@ const tab = (name: string) => name;
         </div>
         <div class="col-art"><div class="file">
           <div class="tabbar"><Icon name="file" /><b>checkout.spec.ts</b><span class="dots"><span></span><span></span><span></span></span></div>
-<pre class="code"><span class="k">test</span>(<span class="s">'checkout keeps the cart'</span>, <span class="k">async</span> ({'{'} <span class="f">cart</span>, <span class="f">checkout</span> {'}'}) =&gt; {'{'}
+<pre class="code" tabindex="0" aria-label="Example Playwright test: checkout.spec.ts"><span class="k">test</span>(<span class="s">'checkout keeps the cart'</span>, <span class="k">async</span> ({'{'} <span class="f">cart</span>, <span class="f">checkout</span> {'}'}) =&gt; {'{'}
   <span class="k">await</span> cart.<span class="f">add</span>(<span class="s">'Blue T-shirt'</span>);
   <span class="k">await</span> checkout.<span class="f">open</span>();
   <span class="k">await</span> <span class="f">expect</span>(checkout.lines)
@@ -63,7 +64,7 @@ const tab = (name: string) => name;
         </div>
         <div class="col-art"><div class="file">
           <div class="tabbar"><Icon name="file" /><b>trust.feature</b><span class="dots"><span></span><span></span><span></span></span></div>
-<pre class="code"><span class="k">Feature:</span> Trustworthy interfaces
+<pre class="code" tabindex="0" aria-label="Example Gherkin feature: trust.feature"><span class="k">Feature:</span> Trustworthy interfaces
 
   <span class="k">Scenario:</span> A change reaches users
     <span class="k">Given</span> a pull request on main
@@ -73,5 +74,6 @@ const tab = (name: string) => name;
         </div></div>
       </article>
     </div>
+    <Stack />
   </div>
 </section>

@@ -10,6 +10,7 @@ export type TestSummary = {
   skipped: number;
   durationMs: number;
   tests: TestLine[];
+  all?: TestLine[];
 };
 
 /** Résultat réel de la dernière exécution de la suite Playwright (écrit par scripts/summarize.mjs). */

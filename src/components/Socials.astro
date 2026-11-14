@@ -1,0 +1,14 @@
+---
+import * as icons from 'simple-icons';
+import Icon from './Icon.astro';
+import { links } from '../data/profile';
+interface Props { size?: 'sm' | 'md'; cv?: boolean }
+const { size = 'md', cv = true } = Astro.props;
+const gh = (icons as Record<string, { path: string }>).siGithub;
+---
+<ul class:list={['socials', size]} aria-label="Profiles and CV">
+  <li><a href={links.linkedin} aria-label="LinkedIn profile" title="LinkedIn"><Icon name="linkedin" /></a></li>
+  <li><a href={links.github} aria-label="GitHub profile" title="GitHub"><svg class="i fill" viewBox="0 0 24 24" aria-hidden="true"><path d={gh.path} /></svg></a></li>
+  {links.email && <li><a href={`mailto:${links.email}`} aria-label="Email" title="Email"><Icon name="mail" /></a></li>}
+  {cv && links.cv && <li><a href={links.cv} download aria-label="Download CV (PDF)" title="CV (PDF)"><Icon name="download" /></a></li>}
+</ul>

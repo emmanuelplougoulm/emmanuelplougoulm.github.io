@@ -1,0 +1,100 @@
+---
+// Version imprimable du CV. Le PDF téléchargeable est généré depuis cette page par Playwright (scripts/cv-pdf.mjs).
+import { phases, stackGroups, cvSummary, certifications, education, languages, links } from '../data/profile';
+const roles = phases.flatMap((p) => p.roles.filter((r) => r.title !== 'Career change'));
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV · Emmanuel Plougoulm · SDET</title>
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      @page { size: A4; margin: 14mm 14mm 12mm; }
+      :root { --ink: #17171c; --ink-2: #4b4a52; --ink-3: #66656d; --rule: #dcd8ce; --accent: #4f4fd8; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font: 10pt/1.45 "Inter Tight", system-ui, sans-serif; color: var(--ink); background: #fff; max-width: 190mm; margin: 0 auto; padding: 8mm 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @media print { body { padding: 0; } }
+      .mono { font: 7.5pt "JetBrains Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+      header { display: grid; grid-template-columns: 1fr auto; gap: 8mm; align-items: end; border-bottom: 1.5px solid var(--ink); padding-bottom: 5mm; }
+      h1 { font: 400 28pt/1 "Source Serif 4", Georgia, serif; letter-spacing: -.02em; }
+      h1 em { color: var(--accent); }
+      .role-title { margin-top: 2mm; font-weight: 600; font-size: 11pt; }
+      .contact { text-align: right; font-size: 8.5pt; color: var(--ink-2); line-height: 1.6; }
+      .contact a { color: inherit; text-decoration: none; }
+      .tagline { margin: 4mm 0 2mm; font: italic 12pt "Source Serif 4", serif; color: var(--ink-2); }
+      .tagline b { color: var(--accent); font-weight: 400; }
+      p.summary { color: var(--ink-2); max-width: 150mm; }
+      main { display: grid; grid-template-columns: 1fr 52mm; gap: 9mm; margin-top: 6mm; }
+      h2 { margin: 0 0 3mm; }
+      section + section { margin-top: 6mm; }
+      .job { display: grid; grid-template-columns: 24mm 1fr; gap: 3mm; padding: 2.4mm 0; border-top: 1px solid var(--rule); break-inside: avoid; }
+      .job:first-of-type { border-top: 0; }
+      .when { font: 8pt "JetBrains Mono", monospace; color: var(--ink-3); padding-top: .5mm; }
+      .job b { font-weight: 600; }
+      .job .where { color: var(--ink-3); }
+      .job p { color: var(--ink-2); font-size: 9pt; }
+      aside .group { margin-bottom: 3.5mm; }
+      aside .group b { display: block; font-size: 8.5pt; margin-bottom: .8mm; }
+      aside .group span { color: var(--ink-2); font-size: 9pt; }
+      aside ul { list-style: none; }
+      aside li { font-size: 9pt; color: var(--ink-2); padding: .8mm 0; }
+      aside li i { font-style: normal; color: var(--ink-3); font: 7.5pt "JetBrains Mono", monospace; display: block; }
+      footer { margin-top: 8mm; border-top: 1px solid var(--rule); padding-top: 2.5mm; display: flex; justify-content: space-between; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Emmanuel Plougoulm</h1>
+        <p class="role-title">SDET · QA Engineer · Paris</p>
+      </div>
+      <div class="contact">
+        <a href="https://emmanuelplougoulm.github.io">emmanuelplougoulm.github.io</a><br />
+        <a href={links.linkedin}>linkedin.com/in/emmanuel-plougoulm-89393560</a><br />
+        <a href={links.github}>github.com/emmanuelplougoulm</a>
+        {links.email && <><br /><a href={`mailto:${links.email}`}>{links.email}</a></>}
+      </div>
+    </header>
+    <p class="tagline">Testing like a <b>developer</b>. Seeing like a <b>designer</b>.</p>
+    <p class="summary">{cvSummary}</p>
+    <main>
+      <div>
+        <section>
+          <h2 class="mono">Experience</h2>
+          {roles.map((r) => (
+            <div class="job">
+              <span class="when">{r.when}</span>
+              <div><b>{r.title}</b> <span class="where">· {r.where}</span><p>{r.did}</p></div>
+            </div>
+          ))}
+        </section>
+      </div>
+      <aside>
+        <section>
+          <h2 class="mono">Stack</h2>
+          {stackGroups.map((g) => (
+            <div class="group"><b>{g.name}</b><span>{g.items.map((t) => t.label).join(' · ')}</span></div>
+          ))}
+        </section>
+        <section>
+          <h2 class="mono">Certifications</h2>
+          <ul>{certifications.map((c) => <li><i>{c.when}</i>{c.title}</li>)}</ul>
+        </section>
+        <section>
+          <h2 class="mono">Education</h2>
+          <ul>{education.map((e) => <li>{e.title}<i>{e.detail}</i></li>)}</ul>
+        </section>
+        <section>
+          <h2 class="mono">Languages</h2>
+          <ul><li>{languages}</li></ul>
+        </section>
+      </aside>
+    </main>
+    <footer class="mono"><span>Generated with Playwright from the website</span><span>emmanuelplougoulm.github.io</span></footer>
+  </body>
+</html>
