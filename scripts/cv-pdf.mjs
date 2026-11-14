@@ -1,9 +1,15 @@
 // Génère le CV PDF depuis la page /cv/ du site construit, avec Playwright.
 import { spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { chromium } from '@playwright/test';
 
 const PORT = 4399;
-const server = spawn('npx', ['astro', 'preview', '--port', String(PORT)], { stdio: 'ignore' });
+// Run the astro binary directly (not through npx) so kill() stops the server itself,
+// with --ignore-lock so this one-off server never runs in the background nor holds
+// Astro's preview lock, which would block the `astro preview` started by Playwright.
+const server = spawn('./node_modules/.bin/astro', ['preview', '--port', String(PORT), '--ignore-lock'], {
+  stdio: 'ignore',
+});
 const url = `http://localhost:${PORT}/cv/`;
 
 try {
@@ -20,5 +26,7 @@ try {
   await browser.close();
   console.log('cv: dist/cv-emmanuel-plougoulm.pdf');
 } finally {
+  const exited = once(server, 'exit');
   server.kill();
+  await exited;
 }

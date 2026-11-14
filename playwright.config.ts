@@ -21,7 +21,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] }, testIgnore: /links/ },
   ],
   webServer: {
-    command: 'npm run preview',
+    command: 'npm run preview -- --ignore-lock',
     url: 'http://localhost:4322',
     reuseExistingServer: !CI,
   },
