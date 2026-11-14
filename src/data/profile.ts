@@ -98,7 +98,7 @@ export const phases: Phase[] = [
         did: 'Playwright automation training, then ISTQB® CTFL. Now preparing CTAL Test Automation Engineering.',
       },
     ],
-    quote: '', // à écrire par Emmanuel : pourquoi le passage du dev à la QA
+    quote: 'It felt like a natural step. Testing gives me the cross-cutting view I was looking for, and quality was already what I cared about most.',
   },
   {
     name: 'Code',
@@ -123,7 +123,7 @@ export const phases: Phase[] = [
         did: 'React and TypeScript apps, SSO, Figma designs shipped to production.',
       },
     ],
-    quote: '', // à écrire par Emmanuel : pourquoi le passage du design au code
+    quote: 'I wanted to understand what happens under the hood, and to be able to build things myself, not just draw them.',
   },
   {
     name: 'Design',
@@ -202,4 +202,12 @@ export const projects: Project[] = [
 export type Post = { date: string; title: string; summary: string; tags: string[]; url: string };
 
 /** Articles et posts. Vide = la section Writing et son lien de navigation sont masqués. */
-export const posts: Post[] = [];
+export const posts: Post[] = [
+  {
+    date: '10 Nov 2026',
+    title: 'Our visual tests cried wolf. The fix was the environment.',
+    summary: 'Why a flaky test is worse than no test, and why screenshots belong in Docker before you touch any tolerance threshold. On LinkedIn, in French.',
+    tags: ['visual regression', 'docker', 'playwright'],
+    url: 'https://www.linkedin.com/feed/update/urn:li:activity:7525822962764062720/',
+  },
+];
