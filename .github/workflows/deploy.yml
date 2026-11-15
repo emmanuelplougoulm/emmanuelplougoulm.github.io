@@ -44,6 +44,9 @@ jobs:
       - name: Fetch last published run
         run: curl -fsSL https://emmanuelplougoulm.github.io/test-summary.json -o src/data/test-summary.json || echo "no published run yet"
 
+      - name: Fetch last published Lighthouse audit
+        run: curl -fsSL https://emmanuelplougoulm.github.io/lighthouse-summary.json -o src/data/lighthouse-summary.json || echo "no published audit yet"
+
       - name: Build
         run: npm run build
 
@@ -66,6 +69,10 @@ jobs:
             git commit -m "chore: update visual baselines [skip ci]"
             git push
           fi
+
+      # Tests verts : Lighthouse audite la page construite (3 passages, médiane) pour le panneau du calque a11y.
+      - name: Lighthouse audit
+        run: npm run lighthouse
 
       - name: Upload Playwright report
         if: always()

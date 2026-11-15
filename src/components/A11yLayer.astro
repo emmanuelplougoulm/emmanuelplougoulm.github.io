@@ -1,7 +1,21 @@
-<!--
-  Calque d'accessibilité : dessine par-dessus la vraie page l'ordre de tabulation (WCAG 2.4.3),
-  la taille des cibles (2.5.8) et l'élément qui a le focus (2.4.7). Tout est mesuré en direct dans le DOM.
--->
+---
+// Calque d'accessibilité : dessine par-dessus la vraie page l'ordre de tabulation (WCAG 2.4.3),
+// la taille des cibles (2.5.8) et l'élément qui a le focus (2.4.7). Tout est mesuré en direct dans le DOM.
+// Le panneau ajoute les scores Lighthouse du dernier passage en CI.
+import { loadLighthouseSummary } from '../lib/lighthouseSummary';
+const lh = loadLighthouseSummary();
+const R = 15, C = 2 * Math.PI * R;
+const scores = lh
+  ? [
+      { key: 'Perf', label: 'Performance', value: lh.scores.performance },
+      { key: 'A11y', label: 'Accessibility', value: lh.scores.accessibility },
+      { key: 'BP', label: 'Best practices', value: lh.scores.bestPractices },
+      { key: 'SEO', label: 'SEO', value: lh.scores.seo },
+    ]
+  : [];
+const grade = (v: number) => (v >= 90 ? 'good' : v >= 50 ? 'avg' : 'poor');
+const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
+---
 <div class="a11y-layer" id="a11y-layer" hidden>
   <div class="a11y-tint" aria-hidden="true"></div>
   <svg class="a11y-svg" aria-hidden="true" focusable="false">
@@ -15,6 +29,26 @@
       <div><dt>2.5.8 Target size</dt><dd data-a11y="targets">–</dd></div>
       <div><dt>2.4.7 Focus visible</dt><dd data-a11y="current">Press Tab to walk the path</dd></div>
     </dl>
+    <div class="a11y-lh" data-testid="a11y-lighthouse">
+      <p class="a11y-lh-head"><span>Lighthouse</span><span>{lh ? `CI run ${lhDate} · ${lh.formFactor}` : 'last CI run'}</span></p>
+      {lh ? (
+        <ul>
+          {scores.map((s) => (
+            <li class={`a11y-score ${grade(s.value)}`}>
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle class="track" cx="20" cy="20" r={R} />
+                <circle class="arc" cx="20" cy="20" r={R} stroke-dasharray={`${(s.value / 100) * C} ${C}`} style={`--c:${C}`} />
+                <text x="20" y="20">{s.value}</text>
+              </svg>
+              <span aria-hidden="true">{s.key}</span>
+              <span class="sr">{s.label}: {s.value} out of 100</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="a11y-lh-empty">No published audit yet. CI writes it on every push.</p>
+      )}
+    </div>
     <p class="a11y-hint">Esc to exit</p>
   </section>
 </div>
@@ -55,6 +89,21 @@
   .a11y-panel dl { display: flex; flex-direction: column; gap: 8px; }
   .a11y-panel dt { color: var(--a11y); font-weight: 500; }
   .a11y-panel dd { color: var(--ink-2); overflow-wrap: anywhere; }
+  .a11y-lh { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--a11y); }
+  .a11y-lh-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .a11y-lh-head span:first-child { color: var(--a11y); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
+  .a11y-lh-head span:last-child, .a11y-lh-empty { color: var(--ink-3); }
+  .a11y-lh ul { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+  .a11y-score { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--ink-2); --g: var(--pass); }
+  .a11y-score.avg { --g: #c98a1b; }
+  .a11y-score.poor { --g: #d1453b; }
+  .a11y-score svg { width: 40px; height: 40px; }
+  .a11y-score .track { fill: none; stroke: var(--rule); stroke-width: 2.5; }
+  .a11y-score .arc { fill: none; stroke: var(--g); stroke-width: 2.5; stroke-linecap: round; transform: rotate(-90deg); transform-box: fill-box; transform-origin: center; }
+  .a11y-score text { fill: var(--ink); font: 500 12px var(--mono); text-anchor: middle; dominant-baseline: central; }
+  .a11y-layer.intro .a11y-score .arc { animation: a11y-ring .9s cubic-bezier(.3,.6,.2,1) .6s both; }
+  @keyframes a11y-ring { from { stroke-dasharray: 0 var(--c); } }
+  .a11y-panel .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .a11y-hint { color: var(--ink-3); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--a11y); }
 
   /* Entrée : le tracé se dessine, les pastilles s'allument dans l'ordre de tabulation. */

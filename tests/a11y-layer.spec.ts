@@ -66,6 +66,21 @@ test.describe('a11y layer', () => {
     await expect(panel(page)).toBeVisible();
   });
 
+  test('shows the last Lighthouse audit, or says none is published yet', async ({ page }) => {
+    await toggle(page).click();
+    const block = page.getByTestId('a11y-lighthouse');
+    await expect(block).toContainText('Lighthouse');
+    const scores = block.locator('.a11y-score');
+    if ((await scores.count()) === 0) {
+      await expect(block).toContainText('No published audit yet');
+    } else {
+      await expect(scores).toHaveCount(4);
+      for (const name of ['Performance', 'Accessibility', 'Best practices', 'SEO']) {
+        await expect(block).toContainText(new RegExp(`${name}: \\d{1,3} out of 100`));
+      }
+    }
+  });
+
   for (const scheme of ['light', 'dark'] as const) {
     test(`stays free of axe violations while on (${scheme})`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });

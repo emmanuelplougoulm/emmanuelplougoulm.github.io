@@ -6,3 +6,5 @@ playwright-report/
 report.json
 src/data/test-summary.json
 public/test-summary.json
+src/data/lighthouse-summary.json
+public/lighthouse-summary.json

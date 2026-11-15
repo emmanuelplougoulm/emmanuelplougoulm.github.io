@@ -17,6 +17,7 @@ for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
     await page.goto('/?a11y');
     await page.evaluate(() => document.fonts.ready);
-    await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { mask: masks(page) });
+    // Les scores Lighthouse et leur date changent à chaque déploiement : masqués aussi.
+    await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { mask: [...masks(page), page.getByTestId('a11y-lighthouse')] });
   });
 }
