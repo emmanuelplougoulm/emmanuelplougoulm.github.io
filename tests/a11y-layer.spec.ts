@@ -1,0 +1,81 @@
+import { test, expect, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+const toggle = (page: Page) => page.getByRole('button', { name: /^A11y/ });
+const panel = (page: Page) => page.getByTestId('a11y-panel');
+
+// Même règle que le calque : éléments visibles atteignables par Tab.
+const countTabStops = (page: Page) =>
+  page.evaluate(() => {
+    const sel = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex], [contenteditable="true"]';
+    const layer = document.getElementById('a11y-layer')!;
+    return [...document.querySelectorAll<HTMLElement>(sel)].filter((el) => {
+      if (layer.contains(el) || el.tabIndex < 0 || el.closest('[inert], [hidden], [aria-hidden="true"]')) return false;
+      const s = getComputedStyle(el);
+      return s.visibility !== 'hidden' && s.display !== 'none' && el.getClientRects().length > 0;
+    }).length;
+  });
+
+test.describe('a11y layer', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+  });
+
+  test('toggles on and off from the header button', async ({ page }) => {
+    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
+    await expect(panel(page)).toBeHidden();
+
+    await toggle(page).click();
+    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
+    await expect(panel(page)).toBeVisible();
+    await expect(panel(page)).toContainText('2.4.3 Focus order');
+
+    await toggle(page).click();
+    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'false');
+    await expect(panel(page)).toBeHidden();
+  });
+
+  test('draws one numbered badge per tab stop', async ({ page }) => {
+    await toggle(page).click();
+    const expected = await countTabStops(page);
+    expect(expected).toBeGreaterThan(5);
+    await expect(page.locator('.a11y-stop:not([style*="display: none"])')).toHaveCount(expected);
+    await expect(panel(page)).toContainText(`${expected} tab stops`);
+  });
+
+  test('follows keyboard focus and exits with Escape', async ({ page }) => {
+    await toggle(page).click();
+    await page.keyboard.press('Tab');
+    // Le calque affiche le nom accessible : aria-label d'abord, sinon le texte.
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement!;
+      return (el.getAttribute('aria-label') ?? el.textContent ?? '').replace(/\s+/g, ' ').trim();
+    });
+    await expect(page.locator('.a11y-stop.active')).toHaveCount(1);
+    await expect(panel(page).locator('[data-a11y="current"]')).toContainText(focused.slice(0, 10));
+
+    await page.keyboard.press('Escape');
+    await expect(panel(page)).toBeHidden();
+    await expect(toggle(page)).toBeFocused();
+  });
+
+  test('opens directly from a shared link', async ({ page }) => {
+    await page.goto('/?a11y');
+    await expect(toggle(page)).toHaveAttribute('aria-pressed', 'true');
+    await expect(panel(page)).toBeVisible();
+  });
+
+  for (const scheme of ['light', 'dark'] as const) {
+    test(`stays free of axe violations while on (${scheme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
+      await toggle(page).click();
+      const results = await new AxeBuilder({ page })
+        .include('#a11y-layer')
+        .include('header.top')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} node(s)`)).toEqual([]);
+    });
+  }
+});

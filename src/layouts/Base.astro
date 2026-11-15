@@ -3,6 +3,7 @@ import '../styles/global.css';
 import IconSprite from '../components/IconSprite.astro';
 import Motion from '../components/Motion.astro';
 import Interactions from '../components/Interactions.astro';
+import A11yLayer from '../components/A11yLayer.astro';
 interface Props { title: string; description: string }
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -32,6 +33,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <slot />
     <Motion />
     <Interactions />
+    <A11yLayer />
     <script is:inline>
       (function () {
         var root = document.documentElement, btn = document.getElementById('theme');

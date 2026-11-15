@@ -1,0 +1,221 @@
+<!--
+  Calque d'accessibilité : dessine par-dessus la vraie page l'ordre de tabulation (WCAG 2.4.3),
+  la taille des cibles (2.5.8) et l'élément qui a le focus (2.4.7). Tout est mesuré en direct dans le DOM.
+-->
+<div class="a11y-layer" id="a11y-layer" hidden>
+  <div class="a11y-tint" aria-hidden="true"></div>
+  <svg class="a11y-svg" aria-hidden="true" focusable="false">
+    <path class="a11y-path" pathLength="1" />
+    <g class="a11y-stops"></g>
+  </svg>
+  <section class="a11y-panel mono" aria-label="Accessibility layer" data-testid="a11y-panel">
+    <p class="a11y-head"><span>A11y layer</span><span>WCAG 2.2</span></p>
+    <dl>
+      <div><dt>2.4.3 Focus order</dt><dd data-a11y="stops">–</dd></div>
+      <div><dt>2.5.8 Target size</dt><dd data-a11y="targets">–</dd></div>
+      <div><dt>2.4.7 Focus visible</dt><dd data-a11y="current">Press Tab to walk the path</dd></div>
+    </dl>
+    <p class="a11y-hint">Esc to exit</p>
+  </section>
+</div>
+
+<style is:global>
+  .a11y-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .a11y-layer { position: fixed; inset: 0; z-index: 70; pointer-events: none; --a11y: var(--accent); }
+  .a11y-layer[hidden] { display: none; }
+  /* Papier calque : la page passe au second plan sous une trame de plan technique. */
+  .a11y-tint {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(color-mix(in srgb, var(--a11y) 9%, transparent) 1px, transparent 1px) 0 0 / 8px 8px,
+      linear-gradient(90deg, color-mix(in srgb, var(--a11y) 9%, transparent) 1px, transparent 1px) 0 0 / 8px 8px,
+      color-mix(in srgb, var(--bg) 42%, transparent);
+  }
+  .a11y-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; font-family: var(--mono); }
+  .a11y-path { fill: none; stroke: var(--a11y); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 0; opacity: .75; }
+  .a11y-stop rect { fill: none; stroke: var(--a11y); stroke-width: 1; }
+  .a11y-stop .tick { stroke: var(--a11y); stroke-width: 1; }
+  .a11y-stop circle { fill: var(--bg); stroke: var(--a11y); stroke-width: 1; }
+  .a11y-stop .num { fill: var(--a11y); font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
+  .a11y-stop .label { fill: var(--a11y); font-size: 10px; opacity: 0; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+  .a11y-stop.small rect { stroke-dasharray: 2 2; }
+  .a11y-stop.active rect { stroke-width: 2; }
+  .a11y-stop.active circle { fill: var(--a11y); }
+  .a11y-stop.active .num { fill: var(--on-accent); }
+  .a11y-stop.active .label { opacity: 1; }
+
+  .a11y-panel {
+    position: absolute; right: 16px; bottom: 16px; width: min(300px, calc(100vw - 32px)); pointer-events: auto;
+    background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px);
+    border: 1px solid var(--a11y); border-radius: 4px; padding: 12px 14px; color: var(--ink);
+    font-size: 11px; line-height: 1.5; text-transform: none; letter-spacing: 0;
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--a11y) 25%, transparent);
+  }
+  .a11y-head { display: flex; justify-content: space-between; color: var(--a11y); text-transform: uppercase; letter-spacing: .08em; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px dashed var(--a11y); }
+  .a11y-panel dl { display: flex; flex-direction: column; gap: 8px; }
+  .a11y-panel dt { color: var(--a11y); font-weight: 500; }
+  .a11y-panel dd { color: var(--ink-2); overflow-wrap: anywhere; }
+  .a11y-hint { color: var(--ink-3); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--a11y); }
+
+  /* Entrée : le tracé se dessine, les pastilles s'allument dans l'ordre de tabulation. */
+  .a11y-layer.intro .a11y-path { animation: a11y-draw 1.1s cubic-bezier(.3,.6,.2,1) .25s both; }
+  .a11y-layer.intro .a11y-stop { animation: a11y-pop .35s cubic-bezier(.2,.8,.2,1.3) both; animation-delay: calc(.25s + var(--i) * 20ms); transform-box: fill-box; transform-origin: center; }
+  .a11y-layer.intro .a11y-panel { animation: a11y-panel .45s cubic-bezier(.2,.7,.2,1) .35s both; }
+  @keyframes a11y-draw { from { stroke-dashoffset: 1; } }
+  @keyframes a11y-pop { from { opacity: 0; transform: scale(.6); } }
+  @keyframes a11y-panel { from { opacity: 0; transform: translateY(12px); } }
+  @media (prefers-reduced-motion: reduce) { .a11y-layer.intro * { animation: none !important; } }
+
+  @media (max-width: 600px) {
+    .a11y-panel { left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: auto; padding: 10px 12px; }
+    .a11y-panel dl { gap: 4px; }
+    .a11y-hint { display: none; }
+    .a11y-stop .label { display: none; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('a11y');
+    var layer = document.getElementById('a11y-layer');
+    if (!btn || !layer) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var path = layer.querySelector('.a11y-path');
+    var group = layer.querySelector('.a11y-stops');
+    var out = {};
+    layer.querySelectorAll('[data-a11y]').forEach(function (el) { out[el.getAttribute('data-a11y')] = el; });
+    var SEL = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex], [contenteditable="true"]';
+    var stops = [], nodes = [], active = -1, frame = 0, on = false;
+
+    // Les arrêts de tabulation réels : visibles, atteignables, tabindex positifs d'abord, puis l'ordre du DOM.
+    function collect() {
+      var list = [].slice.call(document.querySelectorAll(SEL)).filter(function (el) {
+        if (layer.contains(el) || el.tabIndex < 0 || el.closest('[inert], [hidden], [aria-hidden="true"]')) return false;
+        var s = getComputedStyle(el);
+        return s.visibility !== 'hidden' && s.display !== 'none' && el.getClientRects().length > 0;
+      });
+      var pos = list.filter(function (el) { return el.tabIndex > 0; }).sort(function (a, b) { return a.tabIndex - b.tabIndex; });
+      return pos.concat(list.filter(function (el) { return el.tabIndex === 0; }));
+    }
+
+    function accName(el) {
+      var n = el.getAttribute('aria-label');
+      var by = el.getAttribute('aria-labelledby');
+      if (!n && by) n = by.split(/\s+/).map(function (id) { var t = document.getElementById(id); return t ? t.textContent : ''; }).join(' ');
+      if (!n) n = el.textContent;
+      if (!n || !n.trim()) { var img = el.querySelector('img[alt], svg[aria-label]'); n = img ? (img.getAttribute('alt') || img.getAttribute('aria-label')) : ''; }
+      if (!n || !n.trim()) n = el.getAttribute('title') || '';
+      n = n.replace(/\s+/g, ' ').trim();
+      return n ? (n.length > 28 ? n.slice(0, 27) + '…' : n) : 'no accessible name';
+    }
+
+    function role(el) {
+      var r = el.getAttribute('role');
+      if (r) return r;
+      var t = el.tagName.toLowerCase();
+      return t === 'a' ? 'link' : t === 'summary' ? 'disclosure' : t;
+    }
+
+    function mk(tag, cls, parent) { var e = document.createElementNS(NS, tag); if (cls) e.setAttribute('class', cls); parent.appendChild(e); return e; }
+
+    function node(i) {
+      if (nodes[i]) return nodes[i];
+      var g = mk('g', 'a11y-stop', group);
+      g.style.setProperty('--i', Math.min(i, 40));
+      var n = { g: g, rect: mk('rect', '', g), tick: mk('path', 'tick', g), circle: mk('circle', '', g), num: mk('text', 'num', g), label: mk('text', 'label', g) };
+      n.circle.setAttribute('r', 9);
+      return (nodes[i] = n);
+    }
+
+    function draw() {
+      frame = 0;
+      if (!on) return;
+      stops = collect();
+      var d = '', small = 0, prev = null;
+      stops.forEach(function (el, i) {
+        var r = el.getBoundingClientRect();
+        var n = node(i), x = r.left - 3, y = r.top - 3, w = r.width + 6, h = r.height + 6;
+        var isSmall = r.width < 24 || r.height < 24;
+        if (isSmall) small++;
+        n.g.setAttribute('class', 'a11y-stop' + (isSmall ? ' small' : '') + (i === active ? ' active' : ''));
+        n.g.style.display = '';
+        n.rect.setAttribute('x', x); n.rect.setAttribute('y', y); n.rect.setAttribute('width', w); n.rect.setAttribute('height', h);
+        // Repères d'angle, comme des traits de coupe.
+        var x2 = x + w, y2 = y + h;
+        n.tick.setAttribute('d', 'M' + (x2 - 4) + ' ' + y2 + 'H' + (x2 + 6) + 'M' + x2 + ' ' + (y2 - 4) + 'V' + (y2 + 6));
+        n.circle.setAttribute('cx', x); n.circle.setAttribute('cy', y);
+        n.num.setAttribute('x', x); n.num.setAttribute('y', y); n.num.textContent = i + 1;
+        // Étiquette à droite de l'élément, ou alignée sur son bord droit s'il est près du bord de l'écran.
+        var flip = x2 > innerWidth * 0.55;
+        n.label.setAttribute('x', flip ? x2 : x2 + 10); n.label.setAttribute('y', y2 + 16);
+        n.label.setAttribute('text-anchor', flip ? 'end' : 'start');
+        n.label.textContent = role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height);
+        // Le tracé suit le parcours de Tab en courbes douces d'une pastille à l'autre.
+        if (!prev) d = 'M' + x + ' ' + y;
+        else { var my = (prev.y + y) / 2; d += ' C' + prev.x + ' ' + my + ' ' + x + ' ' + my + ' ' + x + ' ' + y; }
+        prev = { x: x, y: y };
+      });
+      for (var k = stops.length; k < nodes.length; k++) nodes[k].g.style.display = 'none';
+      path.setAttribute('d', d || 'M0 0');
+      out.stops.textContent = stops.length + ' tab stops, in DOM order';
+      out.targets.textContent = small ? small + ' under 24 px · check spacing' : 'all ≥ 24 px';
+    }
+
+    function schedule() { if (on && !frame) frame = requestAnimationFrame(draw); }
+
+    function focusOn(el) {
+      var i = stops.indexOf(el);
+      if (i === -1) return;
+      active = i;
+      var r = el.getBoundingClientRect();
+      out.current.textContent = '#' + (i + 1) + ' ' + role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height);
+      schedule();
+    }
+
+    function apply(next) {
+      on = next;
+      btn.setAttribute('aria-pressed', String(on));
+      document.documentElement.classList.toggle('a11y-on', on);
+      layer.hidden = !on;
+      if (on) {
+        active = stops.indexOf(document.activeElement);
+        layer.classList.remove('intro');
+        draw();
+        void layer.offsetWidth;
+        layer.classList.add('intro');
+      }
+    }
+
+    function toggle() {
+      var next = !on;
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!document.startViewTransition || reduce) return apply(next);
+      // Même geste que le changement de thème : le calque se dévoile en cercle depuis le bouton.
+      var r = btn.getBoundingClientRect();
+      var x = r.left + r.width / 2, y = r.top + r.height / 2;
+      var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      var circle = function (rad) { return 'circle(' + rad + 'px at ' + x + 'px ' + y + 'px)'; };
+      document.startViewTransition(function () { apply(next); }).ready.then(function () {
+        document.documentElement.animate(
+          { clipPath: [circle(0), circle(end)] },
+          { duration: 650, easing: 'cubic-bezier(.2,.7,.2,1)', pseudoElement: '::view-transition-new(root)' }
+        );
+      });
+    }
+
+    btn.addEventListener('click', toggle);
+    document.addEventListener('keydown', function (e) { if (on && e.key === 'Escape') { toggle(); btn.focus(); } });
+    document.addEventListener('focusin', function (e) { if (on) focusOn(e.target); });
+    document.addEventListener('mouseover', function (e) {
+      if (!on) return;
+      var t = e.target.closest && e.target.closest(SEL);
+      if (t) focusOn(t);
+    });
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
+    if ('MutationObserver' in window) new MutationObserver(schedule).observe(document.querySelector('main') || document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'tabindex', 'class'] });
+    // Lien partageable : /?a11y ouvre directement la page avec le calque.
+    if (/[?&]a11y\b/.test(location.search)) apply(true);
+  })();
+</script>

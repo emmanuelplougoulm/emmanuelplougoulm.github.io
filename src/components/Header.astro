@@ -17,6 +17,7 @@ const { showWriting } = Astro.props;
     <div class="read-progress" aria-hidden="true"></div>
     <div class="top-actions">
     {links.cv && <a class="cv-btn mono" href={links.cv} download aria-label="Download CV (PDF)"><Icon name="download" />CV</a>}
+    <button class="theme mono a11y-btn" type="button" id="a11y" aria-pressed="false" aria-label="A11y: show the accessibility layer">A11y</button>
     <button class="theme mono" type="button" id="theme" aria-label="Toggle colour theme">Light / Dark</button>
     </div>
   </div>

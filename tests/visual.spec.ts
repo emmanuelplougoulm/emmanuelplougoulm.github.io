@@ -11,3 +11,12 @@ for (const scheme of ['light', 'dark'] as const) {
     await expect(page).toHaveScreenshot(`home-${scheme}.png`, { fullPage: true, mask: masks(page) });
   });
 }
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`visual › a11y layer matches baseline (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
+    await page.goto('/?a11y');
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { mask: masks(page) });
+  });
+}
