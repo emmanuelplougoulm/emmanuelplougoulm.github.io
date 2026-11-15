@@ -17,7 +17,9 @@ for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
     await page.goto('/?a11y');
     await page.evaluate(() => document.fonts.ready);
-    // Les scores Lighthouse et leur date changent à chaque déploiement : masqués aussi.
-    await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { mask: [...masks(page), page.getByTestId('a11y-lighthouse')] });
+    // Un masque recouvrirait aussi le panneau posé par-dessus : on rend invisibles les zones qui changent
+    // à chaque build (résultats de tests, pied de page, scores Lighthouse et leur date) sans toucher au calque.
+    const style = '[data-testid="test-run"], footer, .a11y-lh ul, .a11y-lh-head span:last-child { visibility: hidden !important; }';
+    await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { style });
   });
 }
