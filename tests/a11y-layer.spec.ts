@@ -66,6 +66,36 @@ test.describe('a11y layer', () => {
     await expect(panel(page)).toBeVisible();
   });
 
+  test('passes 2.5.8 on this site: small targets keep their 24 px spacing', async ({ page }) => {
+    await toggle(page).click();
+    const verdict = panel(page).locator('[data-a11y="targets"]');
+    await expect(verdict).toContainText(/^pass · /);
+    await expect(page.locator('.a11y-stop.tight')).toHaveCount(0);
+  });
+
+  test('flags small targets that sit too close together', async ({ page }) => {
+    await toggle(page).click();
+    // Deux boutons de 16 px collés : leurs cercles de 24 px se chevauchent, c'est un échec 2.5.8.
+    await page.evaluate(() => {
+      const box = document.createElement('div');
+      box.id = 'crowded';
+      box.style.cssText = 'display:flex;gap:2px;padding:40px';
+      for (const label of ['Zoom in', 'Zoom out']) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', label);
+        b.style.cssText = 'width:16px;height:16px;padding:0';
+        box.append(b);
+      }
+      document.querySelector('main')!.prepend(box);
+    });
+    await expect(page.locator('.a11y-stop.tight')).toHaveCount(2);
+    await expect(panel(page).locator('[data-a11y="targets"]')).toContainText(/^fail · 2 of \d+ small targets too close/);
+
+    await page.getByRole('button', { name: 'Zoom in' }).focus();
+    await expect(panel(page).locator('[data-a11y="current"]')).toContainText('2.5.8 too close');
+  });
+
   test('shows the last Lighthouse audit, or says none is published yet', async ({ page }) => {
     await toggle(page).click();
     const block = page.getByTestId('a11y-lighthouse');

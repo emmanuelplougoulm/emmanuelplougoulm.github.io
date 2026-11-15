@@ -73,6 +73,11 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
   .a11y-stop .num { fill: var(--a11y); font-size: 10px; font-weight: 500; text-anchor: middle; dominant-baseline: central; }
   .a11y-stop .label { fill: var(--a11y); font-size: 10px; opacity: 0; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
   .a11y-stop.small rect { stroke-dasharray: 2 2; }
+  /* Zone de 24 px de l'exception d'espacement : verte si elle est libre, rouge si elle touche une autre cible. */
+  .a11y-stop .zone { display: none; fill: none; stroke-width: 1; stroke-dasharray: 3 2; }
+  .a11y-stop.small .zone { display: inline; stroke: var(--pass); fill: color-mix(in srgb, var(--pass) 10%, transparent); }
+  .a11y-stop.tight .zone { stroke: #d1453b; fill: color-mix(in srgb, #d1453b 14%, transparent); }
+  .a11y-stop.tight rect { stroke: #d1453b; }
   .a11y-stop.active rect { stroke-width: 2; }
   .a11y-stop.active circle { fill: var(--a11y); }
   .a11y-stop.active .num { fill: var(--on-accent); }
@@ -134,7 +139,7 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
     var out = {};
     layer.querySelectorAll('[data-a11y]').forEach(function (el) { out[el.getAttribute('data-a11y')] = el; });
     var SEL = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex], [contenteditable="true"]';
-    var stops = [], nodes = [], active = -1, frame = 0, on = false;
+    var stops = [], targets = [], nodes = [], active = -1, frame = 0, on = false;
 
     // Les arrêts de tabulation réels : visibles, atteignables, tabindex positifs d'abord, puis l'ordre du DOM.
     function collect() {
@@ -171,8 +176,9 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       if (nodes[i]) return nodes[i];
       var g = mk('g', 'a11y-stop', group);
       g.style.setProperty('--i', Math.min(i, 40));
-      var n = { g: g, rect: mk('rect', '', g), tick: mk('path', 'tick', g), circle: mk('circle', '', g), num: mk('text', 'num', g), label: mk('text', 'label', g) };
+      var n = { g: g, zone: mk('circle', 'zone', g), rect: mk('rect', '', g), tick: mk('path', 'tick', g), circle: mk('circle', '', g), num: mk('text', 'num', g), label: mk('text', 'label', g) };
       n.circle.setAttribute('r', 9);
+      n.zone.setAttribute('r', 12);
       return (nodes[i] = n);
     }
 
@@ -180,13 +186,16 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       frame = 0;
       if (!on) return;
       stops = collect();
-      var d = '', small = 0, prev = null;
+      var d = '', prev = null;
+      var rects = stops.map(function (el) { return el.getBoundingClientRect(); });
+      targets = spacing(rects);
+      var small = targets.filter(Boolean).length;
+      var tight = targets.filter(function (t) { return t === 'tight'; }).length;
       stops.forEach(function (el, i) {
-        var r = el.getBoundingClientRect();
+        var r = rects[i];
         var n = node(i), x = r.left - 3, y = r.top - 3, w = r.width + 6, h = r.height + 6;
-        var isSmall = r.width < 24 || r.height < 24;
-        if (isSmall) small++;
-        n.g.setAttribute('class', 'a11y-stop' + (isSmall ? ' small' : '') + (i === active ? ' active' : ''));
+        n.g.setAttribute('class', 'a11y-stop' + (targets[i] ? ' small ' + targets[i] : '') + (i === active ? ' active' : ''));
+        n.zone.setAttribute('cx', r.left + r.width / 2); n.zone.setAttribute('cy', r.top + r.height / 2);
         n.g.style.display = '';
         n.rect.setAttribute('x', x); n.rect.setAttribute('y', y); n.rect.setAttribute('width', w); n.rect.setAttribute('height', h);
         // Repères d'angle, comme des traits de coupe.
@@ -198,7 +207,7 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
         var flip = x2 > innerWidth * 0.55;
         n.label.setAttribute('x', flip ? x2 : x2 + 10); n.label.setAttribute('y', y2 + 16);
         n.label.setAttribute('text-anchor', flip ? 'end' : 'start');
-        n.label.textContent = role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height);
+        n.label.textContent = describe(el, i, r);
         // Le tracé suit le parcours de Tab en courbes douces d'une pastille à l'autre.
         if (!prev) d = 'M' + x + ' ' + y;
         else { var my = (prev.y + y) / 2; d += ' C' + prev.x + ' ' + my + ' ' + x + ' ' + my + ' ' + x + ' ' + y; }
@@ -207,7 +216,32 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       for (var k = stops.length; k < nodes.length; k++) nodes[k].g.style.display = 'none';
       path.setAttribute('d', d || 'M0 0');
       out.stops.textContent = stops.length + ' tab stops, in DOM order';
-      out.targets.textContent = small ? small + ' under 24 px · check spacing' : 'all ≥ 24 px';
+      out.targets.textContent = tight
+        ? 'fail · ' + tight + ' of ' + small + ' small targets too close'
+        : small ? 'pass · ' + small + ' under 24 px, spacing OK' : 'pass · all ≥ 24 px';
+    }
+
+    // WCAG 2.5.8 : une cible de moins de 24 px passe si un cercle de 24 px centré sur elle
+    // ne touche aucune autre cible, ni le cercle d'une autre petite cible.
+    function spacing(rects) {
+      var small = rects.map(function (r) { return r.width < 24 || r.height < 24; });
+      var center = rects.map(function (r) { return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+      return rects.map(function (r, i) {
+        if (!small[i]) return '';
+        var c = center[i];
+        var clash = rects.some(function (o, j) {
+          if (j === i) return false;
+          if (small[j]) return Math.hypot(c.x - center[j].x, c.y - center[j].y) < 24;
+          var dx = Math.max(o.left - c.x, 0, c.x - o.right), dy = Math.max(o.top - c.y, 0, c.y - o.bottom);
+          return Math.hypot(dx, dy) < 12;
+        });
+        return clash ? 'tight' : 'spaced';
+      });
+    }
+
+    function describe(el, i, r) {
+      var t = targets[i] === 'tight' ? ' · 2.5.8 too close' : targets[i] === 'spaced' ? ' · 2.5.8 spacing OK' : '';
+      return role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height) + t;
     }
 
     function schedule() { if (on && !frame) frame = requestAnimationFrame(draw); }
@@ -217,7 +251,7 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       if (i === -1) return;
       active = i;
       var r = el.getBoundingClientRect();
-      out.current.textContent = '#' + (i + 1) + ' ' + role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height);
+      out.current.textContent = '#' + (i + 1) + ' ' + describe(el, i, r);
       schedule();
     }
 
