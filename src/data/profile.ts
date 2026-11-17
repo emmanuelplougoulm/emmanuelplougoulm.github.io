@@ -204,6 +204,13 @@ export type Post = { date: string; title: string; summary: string; tags: string[
 /** Articles et posts. Vide = la section Writing et son lien de navigation sont masqués. */
 export const posts: Post[] = [
   {
+    date: '17 Nov 2026',
+    title: 'Lighthouse gives my site 100 in accessibility. It does not check tab order.',
+    summary: 'The European Accessibility Act now covers consumer banking, so I added an accessibility mode to this site: tab order, accessible names and target sizes drawn over the page. On LinkedIn, in French.',
+    tags: ['accessibility', 'wcag', 'lighthouse'],
+    url: 'https://www.linkedin.com/feed/update/urn:li:activity:7528359239753314304/',
+  },
+  {
     date: '10 Nov 2026',
     title: 'Our visual tests cried wolf. The fix was the environment.',
     summary: 'Why a flaky test is worse than no test, and why screenshots belong in Docker before you touch any tolerance threshold. On LinkedIn, in French.',
