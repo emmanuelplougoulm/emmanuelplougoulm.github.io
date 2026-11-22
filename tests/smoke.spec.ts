@@ -21,7 +21,10 @@ test.describe('smoke', () => {
   });
 
   test('theme toggle switches and persists', async ({ page }) => {
-    await page.emulateMedia({ colorScheme: 'light' });
+    // Sans réduction des animations, le thème change dans le rappel de startViewTransition,
+    // qui attend une image rendue : WebKit sans affichage en CI peut ne pas en produire à temps.
+    // Ce test vérifie le changement et la persistance, pas l'animation.
+    await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
     await page.goto('/');
     const html = page.locator('html');
     await page.getByRole('button', { name: 'Toggle colour theme' }).click();
