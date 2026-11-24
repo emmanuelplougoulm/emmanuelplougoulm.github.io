@@ -211,16 +211,16 @@ export type Project = {
 
 const projects: (Loc<Omit<Project, 'badge'>> & { badge: [string, string] })[] = [
   {
-    title: { en: 'Task manager', fr: 'Gestionnaire de tâches' },
+    title: { en: 'Coverage Cockpit', fr: 'Coverage Cockpit' },
     description: {
-      en: 'Vue 3 and TypeScript app with Pinia, unit-tested with Vitest, end-to-end tested with Playwright, components documented in Storybook.',
-      fr: 'Application Vue 3 et TypeScript avec Pinia, testée unitairement avec Vitest, de bout en bout avec Playwright, composants documentés dans Storybook.',
+      en: 'Desktop app that shows, journey by journey, which screens, e-mails and BPMN branches a test really verifies, and which it only passes through. Reads Playwright specs, BPMN and front code.',
+      fr: 'Application de bureau qui montre, parcours par parcours, quels écrans, e-mails et branches BPMN un test vérifie vraiment, et lesquels il ne fait que traverser. Lit les specs Playwright, le BPMN et le front.',
     },
-    stack: ['Vue 3', 'Pinia', 'Vitest', 'Playwright', 'Storybook'],
+    stack: ['Tauri', 'Vue 3', 'TypeScript', 'ts-morph', 'Playwright'],
     badge: ['tests', 'passing'],
-    url: 'https://github.com/emmanuelplougoulm/task-manager',
+    url: 'https://github.com/emmanuelplougoulm/coverage-cockpit',
     linkLabel: { en: 'Repository', fr: 'Dépôt' },
-    icon: 'box',
+    icon: 'check',
   },
   {
     title: { en: 'Component library', fr: 'Bibliothèque de composants' },
