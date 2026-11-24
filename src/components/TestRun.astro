@@ -1,5 +1,7 @@
 ---
 import { loadTestSummary, formatMs } from '../lib/testSummary';
+import { getLang, ui } from '../i18n';
+const t = ui[getLang(Astro.currentLocale)].run;
 const summary = loadTestSummary() ?? {
   generatedAt: new Date().toISOString(), passed: 0, failed: 0, flaky: 0, skipped: 0, durationMs: 0, tests: [], all: [],
 };
@@ -13,26 +15,26 @@ const suites = ['smoke', 'visual', 'a11y', 'links', 'cv'].map((name) => ({
 }));
 ---
 <div class="runbox">
-    <div class="run" data-testid="test-run" aria-label={`Output of this website's own Playwright test suite on ${date}`}>
-      <div class="bar"><span>$ npx playwright test</span><span>this site · ci run {date}</span></div>
+    <div class="run" data-testid="test-run" aria-label={t.aria(date)}>
+      <div class="bar"><span>$ npx playwright test</span><span>{t.bar(date)}</span></div>
       <div class="progress" aria-hidden="true"><span data-progress></span></div>
       <div class="suites" aria-hidden="true">
         {suites.map((s) => <span class="suite done" data-suite={s.name}><i></i>{s.name} <b data-count>{s.total}/{s.total}</b></span>)}
       </div>
       <div class="lines" data-lines>
-        {empty && <div class="dim">No published run yet. CI writes the real results here on every push.</div>}
+        {empty && <div class="dim">{t.empty}</div>}
         {shown.map((t) => (
           <div><span class={t.status === 'failed' ? 'ko' : 'ok'}>{t.status === 'failed' ? '✗' : '✓'}</span>{' '}{t.title}{' '}<span class="dim">{`(${t.project}) ${formatMs(t.ms)}`}</span></div>
         ))}
       </div>
       <div class="sum" data-sum aria-live="polite">
         <span class="ok">{summary.passed} passed</span>
-        <span class="dim">{` · ${summary.flaky} flaky · ${formatMs(summary.durationMs)} · deployed only if green`}</span>
+        <span class="dim">{` · ${summary.flaky} flaky · ${formatMs(summary.durationMs)} · ${t.deployed}`}</span>
       </div>
     </div>
     <div class="run-actions">
-      <button type="button" class="btn small" data-replay><svg class="i" aria-hidden="true"><use href="#i-play" /></svg>Replay the last run</button>
-      <button type="button" class="btn small ghost" data-break aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-pixel" /></svg><span data-break-label>Break this page</span></button>
+      <button type="button" class="btn small" data-replay><svg class="i" aria-hidden="true"><use href="#i-play" /></svg>{t.replay}</button>
+      <button type="button" class="btn small ghost" data-break aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-pixel" /></svg><span data-break-label>{t.break}</span></button>
     </div>
     <script type="application/json" id="run-data" set:html={JSON.stringify({ passed: summary.passed, flaky: summary.flaky, durationMs: summary.durationMs, tests: all })} />
   </div>

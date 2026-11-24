@@ -4,12 +4,17 @@ import IconSprite from '../components/IconSprite.astro';
 import Motion from '../components/Motion.astro';
 import Interactions from '../components/Interactions.astro';
 import A11yLayer from '../components/A11yLayer.astro';
+import { getLang, localePath, basePath, langs, ui } from '../i18n';
 interface Props { title: string; description: string }
 const { title, description } = Astro.props;
+const lang = getLang(Astro.currentLocale);
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const base = basePath(Astro.url.pathname);
+// Une page par langue : chacune annonce l'autre aux moteurs de recherche.
+const alternates = langs.map((l) => ({ lang: l, href: new URL(localePath(l, base), Astro.site).href }));
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +25,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'fr' ? 'fr_FR' : 'en_GB'} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates[0].href} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,6 +38,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <IconSprite />
+    <script type="application/json" id="i18n-js" set:html={JSON.stringify(ui[lang].js)} />
     <slot />
     <Motion />
     <Interactions />

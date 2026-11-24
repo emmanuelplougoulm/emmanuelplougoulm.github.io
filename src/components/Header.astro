@@ -1,27 +1,33 @@
 ---
 import Icon from './Icon.astro';
-import { links } from '../data/profile';
+import { cvFile } from '../data/profile';
+import { getLang, localePath, basePath, ui } from '../i18n';
 interface Props { showWriting: boolean; current?: 'lab' }
 const { showWriting, current } = Astro.props;
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang];
 // Hors de l'accueil, les ancres pointent vers les sections de l'accueil.
-const home = current ? '/' : '';
+const home = current ? localePath(lang, '/') : '';
+const other = lang === 'en' ? 'fr' : 'en';
+const otherHref = localePath(other, basePath(Astro.url.pathname));
 ---
 <header class="top">
   <div class="wrap">
-    <a class="brand" href={current ? '/' : '#top'}>Emmanuel Plougoulm <span>/ SDET</span></a>
-    <nav class="links" aria-label="Sections">
-      <a href={`${home}#path`}>Path</a>
-      <a href={`${home}#practice`}>Practice</a>
-      <a href={`${home}#work`}>Work</a>
-      <a href="/lab/" aria-current={current === 'lab' ? 'page' : undefined}>Lab</a>
-      {showWriting && <a href={`${home}#writing`}>Writing</a>}
-      <a href={`${home}#contact`}>Contact</a>
+    <a class="brand" href={current ? localePath(lang, '/') : '#top'}>Emmanuel Plougoulm <span>/ SDET</span></a>
+    <nav class="links" aria-label={t.nav.label}>
+      <a href={`${home}#path`}>{t.nav.path}</a>
+      <a href={`${home}#practice`}>{t.nav.practice}</a>
+      <a href={`${home}#work`}>{t.nav.work}</a>
+      <a href={localePath(lang, '/lab/')} aria-current={current === 'lab' ? 'page' : undefined}>{t.nav.lab}</a>
+      {showWriting && <a href={`${home}#writing`}>{t.nav.writing}</a>}
+      <a href={`${home}#contact`}>{t.nav.contact}</a>
     </nav>
     <div class="read-progress" aria-hidden="true"></div>
     <div class="top-actions">
-    {links.cv && <a class="cv-btn mono" href={links.cv} download aria-label="Download CV (PDF)"><Icon name="download" />CV</a>}
-    <button class="theme mono a11y-btn" type="button" id="a11y" aria-pressed="false" aria-label="A11y: show the accessibility layer">A11y</button>
-    <button class="theme mono" type="button" id="theme" aria-label="Toggle colour theme">Light / Dark</button>
+    <a class="theme mono lang-btn" href={otherHref} hreflang={other} lang={other} aria-label={t.header.switchLabel}>{t.header.switchTo}</a>
+    <a class="cv-btn mono" href={cvFile[lang]} download aria-label={t.header.cvLabel}><Icon name="download" />CV</a>
+    <button class="theme mono a11y-btn" type="button" id="a11y" aria-pressed="false" aria-label={t.header.a11yLabel}>A11y</button>
+    <button class="theme mono" type="button" id="theme" aria-label={t.header.themeLabel}>{t.header.theme}</button>
     </div>
   </div>
 </header>

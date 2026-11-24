@@ -1,29 +1,33 @@
 ---
 import Icon from './Icon.astro';
 import TestRun from './TestRun.astro';
-import { coreStack, links } from '../data/profile';
+import { coreStack, cvFile } from '../data/profile';
 import Logo from './Logo.astro';
 import Socials from './Socials.astro';
+import { getLang, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const { hero } = ui[lang];
+const h = hero.h1;
 ---
 <div class="hero" id="top">
   <div class="wrap">
-    <p class="kicker">QA ENGINEER / SDET · PARIS</p>
+    <p class="kicker">{hero.kicker}</p>
     <div class="grid">
-      <h1>Testing like a <em>developer</em>.<br />Seeing like a <em>designer</em>.</h1>
+      <h1>{h[0]}<em>{h[1]}</em>{h[2]}<br />{h[3]}<em>{h[4]}</em>{h[5]}</h1>
     </div>
     <div class="grid hero-foot">
       <div class="intro">
-        <p>I build <strong>Playwright test automation</strong> that catches what users actually notice: broken flows, visual regressions, accessibility gaps. Seven years in design, five in code, now in quality.</p>
+        <p>{hero.intro[0]}<strong>{hero.intro[1]}</strong>{hero.intro[2]}</p>
         <div class="cta">
-          <a class="btn primary" href="#work">See the work ↓</a>
-          {links.cv && <a class="btn" href={links.cv} download><Icon name="download" />Download CV</a>}
+          <a class="btn primary" href="#work">{hero.seeWork}</a>
+          <a class="btn" href={cvFile[lang]} download><Icon name="download" />{hero.downloadCv}</a>
           <Socials cv={false} />
         </div>
       </div>
       <TestRun />
     </div>
     <div class="toolbox">
-      <span class="lbl">Core stack</span>
+      <span class="lbl">{hero.coreStack}</span>
       {coreStack.map((t) => <span class="t"><Logo tech={t} />{t.label}</span>)}
     </div>
   </div>

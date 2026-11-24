@@ -1,6 +1,8 @@
 <script is:inline>
   // Interactions de l'accroche : replay du dernier run CI, « Break this page », grille qui suit le curseur.
   (function () {
+    // Textes dans la langue de la page (écrits par le layout, voir src/i18n).
+    var T = JSON.parse(document.getElementById('i18n-js').textContent);
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     var hero = document.querySelector('.hero');
     var run = document.querySelector('[data-testid="test-run"]');
@@ -54,11 +56,11 @@
       } else if (state === 'failed') {
         lead.className = 'ko';
         lead.textContent = '1 failed';
-        rest.textContent = ' · ' + (data.passed - 1) + ' passed · deploy blocked';
+        rest.textContent = ' · ' + (data.passed - 1) + ' passed · ' + T.blocked;
       } else {
         lead.className = 'ok';
         lead.textContent = data.passed + ' passed';
-        rest.textContent = ' · ' + data.flaky + ' flaky · ' + fmt(data.durationMs) + ' · deployed only if green';
+        rest.textContent = ' · ' + data.flaky + ' flaky · ' + fmt(data.durationMs) + ' · ' + T.deployed;
       }
       sum.append(lead, rest);
     }
@@ -77,7 +79,7 @@
       if (broken) restore(true);
       run.classList.add('replaying');
       replayBtn.disabled = true;
-      replayBtn.lastChild.textContent = 'Running…';
+      replayBtn.lastChild.textContent = T.running;
       lines.textContent = '';
       setSum('running');
       Object.keys(suites).forEach(function (n) { setSuite(n, 'waiting', 0); });
@@ -89,7 +91,7 @@
         if (i >= n) {
           run.classList.remove('replaying');
           replayBtn.disabled = false;
-          replayBtn.lastChild.textContent = 'Replay the last run';
+          replayBtn.lastChild.textContent = T.replay;
           Object.keys(suites).forEach(function (k) { setSuite(k, 'done'); });
           setSum('passed');
           return;
@@ -123,7 +125,7 @@
       broken = true;
       document.body.classList.add('broken');
       breakBtn.setAttribute('aria-pressed', 'true');
-      breakLabel.textContent = 'Restore baseline';
+      breakLabel.textContent = T.restore;
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'diff-overlay';
@@ -136,7 +138,7 @@
       setTimeout(function () {
         placeOverlay();
         overlay.classList.add('on');
-        addLine(false, 'visual › hero matches baseline', '(chromium) button.cta moved 8px, heading spacing changed');
+        addLine(false, 'visual › hero matches baseline', T.movedMeta);
         setSuite('visual', 'failed');
         setSum('failed');
       }, reduce ? 0 : 480);
@@ -146,10 +148,10 @@
       broken = false;
       document.body.classList.remove('broken');
       breakBtn.setAttribute('aria-pressed', 'false');
-      breakLabel.textContent = 'Break this page';
+      breakLabel.textContent = T.breakPage;
       if (overlay) overlay.classList.remove('on');
       if (silent) return;
-      addLine(true, 'visual › hero matches baseline', '(chromium) back to baseline');
+      addLine(true, 'visual › hero matches baseline', T.backMeta);
       setSuite('visual', 'done');
       setSum('passed');
     }

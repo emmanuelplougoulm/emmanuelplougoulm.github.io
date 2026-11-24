@@ -1,0 +1,45 @@
+---
+// Page d'accueil, rendue en anglais (/) et en français (/fr/).
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Path from '../components/Path.astro';
+import Practice from '../components/Practice.astro';
+import Work from '../components/Work.astro';
+import Writing from '../components/Writing.astro';
+import Contact from '../components/Contact.astro';
+import Socials from '../components/Socials.astro';
+import { links, getProfile } from '../data/profile';
+import { loadTestSummary } from '../lib/testSummary';
+import { getLang, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang];
+const { posts } = getProfile(lang);
+const summary = loadTestSummary();
+const sha = (process.env.GITHUB_SHA ?? '').slice(0, 7) || 'local';
+const builtAt = new Date().toISOString().slice(0, 10);
+---
+<Base title={t.meta.homeTitle} description={t.meta.homeDescription}>
+  <a class="skip" href="#path">{t.skip}</a>
+  <Header showWriting={posts.length > 0} />
+  <main>
+    <Hero />
+    <Path />
+    <Practice />
+    <Work />
+    <Writing />
+    <Contact />
+  </main>
+  <footer>
+    <div class="wrap">
+      <span class="foot-left">© {new Date().getFullYear()} Emmanuel Plougoulm · Paris <Socials size="sm" /></span>
+      <span class="build" data-testid="build-info">
+        <span class="dot" aria-hidden="true"></span>
+        <span>build <a href={sha === 'local' ? links.source : `${links.source}/commit/${process.env.GITHUB_SHA}`}>{sha}</a></span>
+        <span>· {builtAt}</span>
+        {summary && <span>· {t.footer.tests(summary.passed, summary.passed + summary.failed)}</span>}
+        <span>· Astro + Playwright · <a href={links.source}>{t.footer.source}</a></span>
+      </span>
+    </div>
+  </footer>
+</Base>

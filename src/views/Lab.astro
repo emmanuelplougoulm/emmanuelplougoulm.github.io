@@ -1,0 +1,61 @@
+---
+// Page du labo, rendue en anglais (/lab/) et en français (/fr/lab/).
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Icon from '../components/Icon.astro';
+import Socials from '../components/Socials.astro';
+import { links, getProfile } from '../data/profile';
+import { getExperiments, labRepo } from '../data/lab';
+import { getLang, localePath, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang];
+const { posts } = getProfile(lang);
+const experiments = getExperiments(lang);
+---
+<Base title={t.meta.labTitle} description={t.meta.labDescription}>
+  <a class="skip" href="#experiments">{t.skip}</a>
+  <Header showWriting={posts.length > 0} current="lab" />
+  <main>
+    <section class="lab-head">
+      <div class="wrap">
+        <span class="sec-num mono"><span class="ico"><Icon name="pixel" /></span>{t.nav.lab}</span>
+        <h1>{t.lab.h1[0]}<em>{t.lab.h1[1]}</em>{t.lab.h1[2]}</h1>
+        <div class="grid lab-intro">
+          <p>{t.lab.intro}</p>
+          <p>{t.lab.source[0]}<a href={labRepo}>{t.lab.source[1]}</a>{t.lab.source[2]}</p>
+        </div>
+      </div>
+    </section>
+    <section class="lab-list" aria-label={t.lab.list}>
+      <div class="wrap" id="experiments">
+        {experiments.map((e) => (
+          <article class="exp" id={`e${e.num}`} aria-labelledby={`e${e.num}-title`}>
+            <div class="exp-side">
+              <span class="exp-num mono">{e.num}</span>
+              <span class="when">{e.date}</span>
+            </div>
+            <div class="exp-body">
+              <h2 id={`e${e.num}-title`}>{e.title}</h2>
+              <p class="exp-q">{e.question}</p>
+              <p class="exp-setup">{e.setup}</p>
+              <div class="stats exp-stats">
+                {e.figures.map((f) => <div><b>{f.value}</b><span>{f.label}</span></div>)}
+              </div>
+              <p class="exp-take">{e.takeaway}</p>
+              <p class="exp-limit"><span class="mono">{t.lab.limit}</span> {e.limit}</p>
+              <a class="exp-link" href={`${labRepo}/tree/main/experiences/${e.slug}`}>
+                {t.lab.link} {t.lab.linkNote && <span class="mono">{t.lab.linkNote}</span>} <Icon name="arrow" />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">
+      <span class="foot-left">© {new Date().getFullYear()} Emmanuel Plougoulm · Paris <Socials size="sm" /></span>
+      <span class="build"><a href={localePath(lang, '/')}>{t.footer.home}</a> · <a href={links.source}>{t.footer.source}</a></span>
+    </div>
+  </footer>
+</Base>

@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { experiments, labRepo } from '../src/data/lab';
+import { getExperiments, labRepo } from '../src/data/lab';
+
+const experiments = getExperiments('en');
 
 test.describe('smoke', () => {
   test('lab lists every experiment with its figures and repository link', async ({ page }) => {

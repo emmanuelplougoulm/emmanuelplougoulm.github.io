@@ -3,14 +3,16 @@
 // la taille des cibles (2.5.8) et l'élément qui a le focus (2.4.7). Tout est mesuré en direct dans le DOM.
 // Le panneau ajoute les scores Lighthouse du dernier passage en CI.
 import { loadLighthouseSummary } from '../lib/lighthouseSummary';
+import { getLang, ui } from '../i18n';
+const t = ui[getLang(Astro.currentLocale)].a11y;
 const lh = loadLighthouseSummary();
 const R = 15, C = 2 * Math.PI * R;
 const scores = lh
   ? [
-      { key: 'Perf', label: 'Performance', value: lh.scores.performance },
-      { key: 'A11y', label: 'Accessibility', value: lh.scores.accessibility },
-      { key: 'BP', label: 'Best practices', value: lh.scores.bestPractices },
-      { key: 'SEO', label: 'SEO', value: lh.scores.seo },
+      { key: 'Perf', label: t.scores.performance, value: lh.scores.performance },
+      { key: 'A11y', label: t.scores.accessibility, value: lh.scores.accessibility },
+      { key: 'BP', label: t.scores.bestPractices, value: lh.scores.bestPractices },
+      { key: 'SEO', label: t.scores.seo, value: lh.scores.seo },
     ]
   : [];
 const grade = (v: number) => (v >= 90 ? 'good' : v >= 50 ? 'avg' : 'poor');
@@ -22,15 +24,15 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
     <path class="a11y-path" pathLength="1" />
     <g class="a11y-stops"></g>
   </svg>
-  <section class="a11y-panel mono" aria-label="Accessibility layer" data-testid="a11y-panel">
-    <p class="a11y-head"><span>A11y layer</span><span>WCAG 2.2</span></p>
+  <section class="a11y-panel mono" aria-label={t.panel} data-testid="a11y-panel">
+    <p class="a11y-head"><span>{t.head}</span><span>WCAG 2.2</span></p>
     <dl>
-      <div><dt>2.4.3 Focus order</dt><dd data-a11y="stops">–</dd></div>
-      <div><dt>2.5.8 Target size</dt><dd data-a11y="targets">–</dd></div>
-      <div><dt>2.4.7 Focus visible</dt><dd data-a11y="current">Press Tab to walk the path</dd></div>
+      <div><dt>{t.focusOrder}</dt><dd data-a11y="stops">–</dd></div>
+      <div><dt>{t.targetSize}</dt><dd data-a11y="targets">–</dd></div>
+      <div><dt>{t.focusVisible}</dt><dd data-a11y="current">{t.pressTab}</dd></div>
     </dl>
     <div class="a11y-lh" data-testid="a11y-lighthouse">
-      <p class="a11y-lh-head"><span>Lighthouse</span><span>{lh ? `CI run ${lhDate} · ${lh.formFactor}` : 'last CI run'}</span></p>
+      <p class="a11y-lh-head"><span>Lighthouse</span><span>{lh ? t.lhRun(lhDate, lh.formFactor) : t.lhLast}</span></p>
       {lh ? (
         <ul>
           {scores.map((s) => (
@@ -41,15 +43,15 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
                 <text x="20" y="20">{s.value}</text>
               </svg>
               <span aria-hidden="true">{s.key}</span>
-              <span class="sr">{s.label}: {s.value} out of 100</span>
+              <span class="sr">{s.label}: {s.value} {t.outOf}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <p class="a11y-lh-empty">No published audit yet. CI writes it on every push.</p>
+        <p class="a11y-lh-empty">{t.lhEmpty}</p>
       )}
     </div>
-    <p class="a11y-hint">Esc to exit</p>
+    <p class="a11y-hint">{t.exit}</p>
   </section>
 </div>
 
@@ -130,6 +132,8 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
 
 <script is:inline>
   (function () {
+    // Textes dans la langue de la page (écrits par le layout, voir src/i18n).
+    var T = JSON.parse(document.getElementById('i18n-js').textContent);
     var btn = document.getElementById('a11y');
     var layer = document.getElementById('a11y-layer');
     if (!btn || !layer) return;
@@ -160,7 +164,7 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       if (!n || !n.trim()) { var img = el.querySelector('img[alt], svg[aria-label]'); n = img ? (img.getAttribute('alt') || img.getAttribute('aria-label')) : ''; }
       if (!n || !n.trim()) n = el.getAttribute('title') || '';
       n = n.replace(/\s+/g, ' ').trim();
-      return n ? (n.length > 28 ? n.slice(0, 27) + '…' : n) : 'no accessible name';
+      return n ? (n.length > 28 ? n.slice(0, 27) + '…' : n) : T.noName;
     }
 
     function role(el) {
@@ -215,10 +219,10 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
       });
       for (var k = stops.length; k < nodes.length; k++) nodes[k].g.style.display = 'none';
       path.setAttribute('d', d || 'M0 0');
-      out.stops.textContent = stops.length + ' tab stops, in DOM order';
+      out.stops.textContent = stops.length + ' ' + T.stops;
       out.targets.textContent = tight
-        ? 'fail · ' + tight + ' of ' + small + ' small targets too close'
-        : small ? 'pass · ' + small + ' under 24 px, spacing OK' : 'pass · all ≥ 24 px';
+        ? T.targetsFail.replace('{tight}', tight).replace('{small}', small)
+        : small ? T.targetsSmall.replace('{small}', small) : T.targetsAll;
     }
 
     // WCAG 2.5.8 : une cible de moins de 24 px passe si un cercle de 24 px centré sur elle
@@ -240,7 +244,7 @@ const lhDate = lh ? lh.generatedAt.slice(0, 10) : '';
     }
 
     function describe(el, i, r) {
-      var t = targets[i] === 'tight' ? ' · 2.5.8 too close' : targets[i] === 'spaced' ? ' · 2.5.8 spacing OK' : '';
+      var t = targets[i] === 'tight' ? ' · ' + T.tooClose : targets[i] === 'spaced' ? ' · ' + T.spacingOk : '';
       return role(el) + ' · "' + accName(el) + '" · ' + Math.round(r.width) + '×' + Math.round(r.height) + t;
     }
 

@@ -1,15 +1,19 @@
 ---
 // La stack en tableau périodique : une colonne par famille, des tuiles numérotées, le vrai logo.
 import Logo from './Logo.astro';
-import { stackGroups } from '../data/profile';
+import { getProfile } from '../data/profile';
+import { getLang, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang].stack;
+const { stackGroups } = getProfile(lang);
 let n = 0;
 const groups = stackGroups.map((g) => ({ ...g, items: g.items.map((t) => ({ ...t, n: ++n })) }));
 ---
 <div class="stack" data-testid="stack">
   <div class="stack-head">
-    <span class="mono">The stack</span>
-    <p class="stack-intro">{n} tools, {groups.length} families. Hover a tile for where it served, or a family to isolate it.</p>
-    <ul class="legend" aria-label="Families">
+    <span class="mono">{t.title}</span>
+    <p class="stack-intro">{t.intro(n, groups.length)}</p>
+    <ul class="legend" aria-label={t.families}>
       {groups.map((g) => (
         <li><button type="button" class="fam" data-family={g.key} aria-pressed="false"><i></i>{g.name}<span>{g.items.length}</span></button></li>
       ))}

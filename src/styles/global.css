@@ -627,3 +627,20 @@ nav.links a[aria-current="page"]::after { transform: scaleX(1); }
 }
 .card.feature .stats div { padding-right: 14px; }
 .card.feature .stats span { display: block; margin-top: 8px; line-height: 1.4; }
+
+/* ===== Sélecteur de langue ===== */
+.lang-btn { text-decoration: none; }
+.lang-btn:hover { color: var(--ink); border-color: var(--ink); }
+@media (max-width: 600px) {
+  /* Quatre boutons à droite : le nom reste sur une ligne. Le CV se télécharge depuis l'accroche et le pied de page. */
+  .brand { white-space: nowrap; font-size: 15px; }
+  .top .wrap { gap: 10px; }
+  .top-actions { gap: 5px; }
+  .top-actions .cv-btn { display: none; }
+  .top-actions .theme { padding: 6px 8px; }
+}
+@media (max-width: 380px) {
+  /* Écrans étroits : « Plougoulm » seul suffit à signer. */
+  .brand { font-size: 0; }
+  .brand::before { content: "Plougoulm"; font-size: 15px; }
+}

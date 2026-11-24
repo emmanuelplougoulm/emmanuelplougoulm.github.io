@@ -1,19 +1,23 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
-import { posts } from '../data/profile';
+import { getProfile } from '../data/profile';
+import { getLang, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang].writing;
+const { posts } = getProfile(lang);
 ---
 {posts.length > 0 && (
   <section id="writing">
     <div class="wrap">
-      <SectionHead num="04" slug="writing" icon="pen" intro="Longer versions of what I share on LinkedIn.">
-        Notes from the <em>test suite</em>.
+      <SectionHead num="04" slug="writing" icon="pen" intro={t.intro}>
+        {t.title[0]}<em>{t.title[1]}</em>{t.title[2]}
       </SectionHead>
       {posts.map((p) => (
         <a class="post" href={p.url}>
           <span class="when">{p.date}</span>
           <div><b>{p.title}</b><p>{p.summary}</p><div class="tags">{p.tags.map((t) => <span class="chip">{t}</span>)}</div></div>
-          <span class="go mono">Read <Icon name="arrow" /></span>
+          <span class="go mono">{t.read} <Icon name="arrow" /></span>
         </a>
       ))}
     </div>

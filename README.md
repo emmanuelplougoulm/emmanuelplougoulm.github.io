@@ -11,7 +11,8 @@ The site is also a small showcase of how I test: it only goes online if its own 
 - **Astro 7**, static output, no client framework
 - **Playwright** + **axe-core** for the tests
 - **GitHub Actions** + **GitHub Pages** for CI and hosting
-- The CV is a page of the site (`/cv/`), printed to PDF by Playwright at build time
+- Two languages: English at the root (`/`, `/lab/`, `/cv/`), French under `/fr/`, with a switch in the header and `hreflang` links
+- The CV is a page of the site (`/cv/`, `/fr/cv/`), printed to one PDF per language by Playwright at build time
 
 ## What the tests cover
 
@@ -22,7 +23,9 @@ The site is also a small showcase of how I test: it only goes online if its own 
 | `visual` | full-page screenshots compared to baselines, light and dark, desktop and mobile |
 | `a11y` | axe scan in light and dark themes |
 | `links` | every external link responds, every internal anchor resolves |
-| `cv` | the PDF is generated and downloadable, the CV page lists experience and stack |
+| `cv` | both PDFs are generated and downloadable, the CV pages list experience and stack |
+| `lab` | the lab page lists every experiment with its figures and repository link |
+| `i18n` | the French pages render in French, the language switch and `hreflang` links pair each page with its translation, axe passes in French |
 
 Tests run on Chromium, WebKit and a mobile viewport (Pixel 7).
 
@@ -45,4 +48,4 @@ npx playwright install chromium webkit
 npm test             # runs the suite against the built site
 ```
 
-All editable content (experience, stack, certifications) lives in `src/data/profile.ts`.
+All editable content (experience, stack, certifications) lives in `src/data/profile.ts`, and the lab experiments in `src/data/lab.ts`, each text in English and French side by side. Interface strings live in `src/i18n/index.ts`.

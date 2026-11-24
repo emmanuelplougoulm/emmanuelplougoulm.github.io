@@ -1,28 +1,29 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
-import { projects } from '../data/profile';
-import { experiments } from '../data/lab';
+import { getProfile } from '../data/profile';
+import { getExperiments } from '../data/lab';
+import { getLang, localePath, ui } from '../i18n';
+const lang = getLang(Astro.currentLocale);
+const t = ui[lang].work;
+const { projects } = getProfile(lang);
+const experiments = getExperiments(lang);
 // Trois chiffres courts, tirés des résultats des expériences 01, 02 et 04 (voir src/data/lab.ts).
-const highlights = [
-  { value: experiments[0].figures[1].value, label: 'tests re-run: fixtures vs God object' },
-  { value: experiments[1].figures[1].value, label: 'tests down after one logout' },
-  { value: '10 vs 1', label: 'bugs caught: real backend vs mocks' },
-];
+const highlights = [experiments[0].figures[1].value, experiments[1].figures[1].value, '10 vs 1'].map((value, i) => ({ value, label: t.labStats[i] }));
 ---
 <section id="work">
   <div class="wrap">
-    <SectionHead num="03" slug="work" icon="box" intro="Work I do for employers stays with them. Everything here is my own, and it runs in CI.">
-      Public, running, <em>checkable</em>.
+    <SectionHead num="03" slug="work" icon="box" intro={t.intro}>
+      {t.title[0]}<em>{t.title[1]}</em>{t.title[2]}
     </SectionHead>
     <div class="work">
-      <a class="card feature" href="/lab/">
+      <a class="card feature" href={localePath(lang, '/lab/')}>
         <div>
-          <div class="card-top"><span class="badge"><span>lab</span><span>{experiments.length} experiments</span></span><Icon name="pixel" /></div>
-          <h3 style="margin-top:12px">Test code, measured</h3>
-          <p style="margin-top:10px">A public lab on test-code architecture. Each experiment runs the same Playwright tests organised two or more ways, and measures what the choice costs: lines to read, tests re-run, seconds, bugs caught.</p>
+          <div class="card-top"><span class="badge"><span>lab</span><span>{t.labBadge(experiments.length)}</span></span><Icon name="pixel" /></div>
+          <h3 style="margin-top:12px">{t.labTitle}</h3>
+          <p style="margin-top:10px">{t.labText}</p>
           <div class="chips" style="margin-top:16px">{['Playwright', 'TypeScript', 'Fixtures', 'Docker', 'GitHub Actions'].map((s) => <span class="chip">{s}</span>)}</div>
-          <span class="more" style="margin-top:20px">See the experiments <Icon name="arrow" /></span>
+          <span class="more" style="margin-top:20px">{t.labMore} <Icon name="arrow" /></span>
         </div>
         <div>
           <div class="stats">
@@ -31,7 +32,7 @@ const highlights = [
           <dl class="meta" style="margin-top:18px">
             {experiments.map((e) => <><dt>{e.num}</dt><dd>{e.title}</dd></>)}
           </dl>
-          <p class="policy">Every figure comes from a run in the repository, with its protocol and its limits.</p>
+          <p class="policy">{t.labPolicy}</p>
         </div>
       </a>
       {projects.map((p) => (

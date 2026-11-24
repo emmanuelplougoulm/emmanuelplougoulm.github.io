@@ -36,3 +36,14 @@ for (const scheme of ['light', 'dark'] as const) {
     await expect(page).toHaveScreenshot(`lab-${scheme}.png`, { fullPage: true, mask: [page.locator('footer')] });
   });
 }
+
+// La version française : les textes plus longs ne doivent pas casser la mise en page.
+for (const path of ['/fr/', '/fr/lab/']) {
+  test(`visual › ${path} matches baseline (light)`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+    await page.goto(path);
+    await page.evaluate(() => document.fonts.ready);
+    const name = path === '/fr/' ? 'home-fr-light.png' : 'lab-fr-light.png';
+    await expect(page).toHaveScreenshot(name, { fullPage: true, mask: [page.getByTestId('test-run'), page.locator('footer')] });
+  });
+}
