@@ -155,6 +155,36 @@ const experiments: Loc<Experiment>[] = [
       fr: 'Les 10 bugs sont choisis à la main : la proportion de bugs de forme et de comportement influence le score des tests de contrat.',
     },
   },
+  {
+    num: '05',
+    slug: '05-locators',
+    date: { en: '24 Nov 2026', fr: '24 nov. 2026' },
+    title: {
+      en: 'CSS, text, role or data-test: which locators survive UI changes?',
+      fr: 'CSS, texte, rôle ou data-test : quels locators résistent aux changements ?',
+    },
+    question: {
+      en: 'When the UI changes, which locators break for nothing, and which break when users are affected?',
+      fr: "Quand l'interface change, quels locators cassent pour rien, et lesquels cassent quand l'utilisateur est touché ?",
+    },
+    setup: {
+      en: 'The same 5 UI tests on the demo shop, written with four sets of locators: CSS, visible text, role, data-test. 10 UI changes applied one at a time: 2 invisible refactors, 5 intended visible changes, 3 accessibility regressions.',
+      fr: "Les mêmes 5 tests d'interface sur la boutique de démo, écrits avec quatre jeux de locators : CSS, texte visible, rôle, data-test. 10 changements de l'interface appliqués un par un : 2 refactors invisibles, 5 changements visibles voulus, 3 régressions d'accessibilité.",
+    },
+    figures: [
+      { value: '3 / 5', label: { en: 'tests broken by an <h5> to <h3> refactor, CSS locators', fr: 'tests cassés par un refactor de <h5> en <h3>, locators CSS' } },
+      { value: '0 / 3', label: { en: 'accessibility regressions caught by data-test locators', fr: "régressions d'accessibilité rattrapées par les locators data-test" } },
+      { value: '2 / 3', label: { en: 'caught by role locators, with no false alarm on refactors', fr: 'rattrapées par les locators de rôle, sans fausse alerte sur les refactors' } },
+    ],
+    takeaway: {
+      en: 'Each strategy breaks on a different kind of change. Role locators encode a user contract: they ignored the refactors and caught the button turned into a div and the unnamed checkboxes. data-test only broke when its own attributes were renamed.',
+      fr: 'Chaque stratégie casse sur une famille de changements différente. Les locators de rôle encodent un contrat utilisateur : ils ignorent les refactors et rattrapent le bouton devenu une div et les cases sans nom. Le data-test n\'a cassé que quand ses propres attributs ont été renommés.',
+    },
+    limit: {
+      en: 'No strategy caught the search field losing its label: the placeholder still gives it an accessible name.',
+      fr: "Aucune stratégie n'a vu le champ de recherche perdre son label : le placeholder lui donne encore un nom accessible.",
+    },
+  },
 ];
 
 export function getExperiments(lang: Lang): Experiment[] {
