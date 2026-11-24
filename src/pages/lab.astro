@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Icon from '../components/Icon.astro';
+import Socials from '../components/Socials.astro';
+import { posts, links } from '../data/profile';
+import { experiments, labRepo } from '../data/lab';
+---
+<Base
+  title="Lab · Emmanuel Plougoulm · SDET"
+  description="Experiments on test-code architecture: the same Playwright tests organised two or more ways, and what each choice costs, measured."
+>
+  <a class="skip" href="#experiments">Skip to content</a>
+  <Header showWriting={posts.length > 0} current="lab" />
+  <main>
+    <section class="lab-head">
+      <div class="wrap">
+        <span class="sec-num mono"><span class="ico"><Icon name="pixel" /></span>lab</span>
+        <h1>Test code, <em>measured</em>.</h1>
+        <div class="grid lab-intro">
+          <p>
+            Tests are software too. Each experiment takes one architecture question, runs the same Playwright tests
+            organised two or more ways, and measures what the choice costs: lines to read, tests re-run, seconds, bugs caught.
+          </p>
+          <p>
+            The protocols, raw results and limits live in the <a href={labRepo}>repository</a>, in French.
+            Every figure on this page comes from there.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="lab-list" aria-label="Experiments">
+      <div class="wrap" id="experiments">
+        {experiments.map((e) => (
+          <article class="exp" id={`e${e.num}`} aria-labelledby={`e${e.num}-title`}>
+            <div class="exp-side">
+              <span class="exp-num mono">{e.num}</span>
+              <span class="when">{e.date}</span>
+            </div>
+            <div class="exp-body">
+              <h2 id={`e${e.num}-title`}>{e.title}</h2>
+              <p class="exp-q">{e.question}</p>
+              <p class="exp-setup">{e.setup}</p>
+              <div class="stats exp-stats">
+                {e.figures.map((f) => <div><b>{f.value}</b><span>{f.label}</span></div>)}
+              </div>
+              <p class="exp-take">{e.takeaway}</p>
+              <p class="exp-limit"><span class="mono">Limit</span> {e.limit}</p>
+              <a class="exp-link" href={`${labRepo}/tree/main/experiences/${e.slug}`}>
+                Protocol and results <span class="mono">in French</span> <Icon name="arrow" />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">
+      <span class="foot-left">© {new Date().getFullYear()} Emmanuel Plougoulm · Paris <Socials size="sm" /></span>
+      <span class="build"><a href="/">Home</a> · <a href={links.source}>source</a></span>
+    </div>
+  </footer>
+</Base>

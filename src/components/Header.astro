@@ -1,18 +1,21 @@
 ---
 import Icon from './Icon.astro';
 import { links } from '../data/profile';
-interface Props { showWriting: boolean }
-const { showWriting } = Astro.props;
+interface Props { showWriting: boolean; current?: 'lab' }
+const { showWriting, current } = Astro.props;
+// Hors de l'accueil, les ancres pointent vers les sections de l'accueil.
+const home = current ? '/' : '';
 ---
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top">Emmanuel Plougoulm <span>/ SDET</span></a>
+    <a class="brand" href={current ? '/' : '#top'}>Emmanuel Plougoulm <span>/ SDET</span></a>
     <nav class="links" aria-label="Sections">
-      <a href="#path">Path</a>
-      <a href="#practice">Practice</a>
-      <a href="#work">Work</a>
-      {showWriting && <a href="#writing">Writing</a>}
-      <a href="#contact">Contact</a>
+      <a href={`${home}#path`}>Path</a>
+      <a href={`${home}#practice`}>Practice</a>
+      <a href={`${home}#work`}>Work</a>
+      <a href="/lab/" aria-current={current === 'lab' ? 'page' : undefined}>Lab</a>
+      {showWriting && <a href={`${home}#writing`}>Writing</a>}
+      <a href={`${home}#contact`}>Contact</a>
     </nav>
     <div class="read-progress" aria-hidden="true"></div>
     <div class="top-actions">

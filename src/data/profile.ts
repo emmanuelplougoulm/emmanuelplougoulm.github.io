@@ -162,20 +162,6 @@ export type Project = {
   icon?: string;
 };
 
-export const featured: Project & { meta: [string, string][] } = {
-  title: 'Playwright reference suite',
-  description:
-    'End-to-end, API, visual and accessibility tests on a demo shop, in Playwright and TypeScript. Layered architecture, reports published on every push.',
-  stack: ['Playwright', 'TypeScript', 'Docker', 'GitHub Actions', 'axe'],
-  badge: ['status', 'in progress · Jan 2027'],
-  badgeSoon: true,
-  meta: [
-    ['runner', 'GitHub Actions · Docker image'],
-    ['browsers', 'chromium · webkit'],
-    ['reports', 'HTML · traces · visual diffs'],
-  ],
-};
-
 export const projects: Project[] = [
   {
     title: 'Task manager',

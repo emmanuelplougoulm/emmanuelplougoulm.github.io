@@ -1,7 +1,14 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
-import { featured, projects } from '../data/profile';
+import { projects } from '../data/profile';
+import { experiments } from '../data/lab';
+// Trois chiffres courts, tirés des résultats des expériences 01, 02 et 04 (voir src/data/lab.ts).
+const highlights = [
+  { value: experiments[0].figures[1].value, label: 'tests re-run: fixtures vs God object' },
+  { value: experiments[1].figures[1].value, label: 'tests down after one logout' },
+  { value: '10 vs 1', label: 'bugs caught: real backend vs mocks' },
+];
 ---
 <section id="work">
   <div class="wrap">
@@ -9,25 +16,24 @@ import { featured, projects } from '../data/profile';
       Public, running, <em>checkable</em>.
     </SectionHead>
     <div class="work">
-      <article class="card feature">
+      <a class="card feature" href="/lab/">
         <div>
-          <div class="card-top"><span class:list={['badge', { soon: featured.badgeSoon }]}><span>{featured.badge[0]}</span><span>{featured.badge[1]}</span></span></div>
-          <h3 style="margin-top:12px">{featured.title}</h3>
-          <p style="margin-top:10px">{featured.description}</p>
-          <div class="chips" style="margin-top:16px">{featured.stack.map((s) => <span class="chip">{s}</span>)}</div>
+          <div class="card-top"><span class="badge"><span>lab</span><span>{experiments.length} experiments</span></span><Icon name="pixel" /></div>
+          <h3 style="margin-top:12px">Test code, measured</h3>
+          <p style="margin-top:10px">A public lab on test-code architecture. Each experiment runs the same Playwright tests organised two or more ways, and measures what the choice costs: lines to read, tests re-run, seconds, bugs caught.</p>
+          <div class="chips" style="margin-top:16px">{['Playwright', 'TypeScript', 'Fixtures', 'Docker', 'GitHub Actions'].map((s) => <span class="chip">{s}</span>)}</div>
+          <span class="more" style="margin-top:20px">See the experiments <Icon name="arrow" /></span>
         </div>
         <div>
           <div class="stats">
-            <div><b>—</b><span>E2E cases</span></div>
-            <div><b>—</b><span>Visual cases</span></div>
-            <div><b>—</b><span>API cases</span></div>
+            {highlights.map((f) => <div><b>{f.value}</b><span>{f.label}</span></div>)}
           </div>
           <dl class="meta" style="margin-top:18px">
-            {featured.meta.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}
+            {experiments.map((e) => <><dt>{e.num}</dt><dd>{e.title}</dd></>)}
           </dl>
-          <p class="policy">Figures will come from the last published CI run, never typed by hand.</p>
+          <p class="policy">Every figure comes from a run in the repository, with its protocol and its limits.</p>
         </div>
-      </article>
+      </a>
       {projects.map((p) => (
         <a class="card half" href={p.url}>
           <div class="card-top"><span class="badge"><span>{p.badge[0]}</span><span>{p.badge[1]}</span></span>{p.icon && <Icon name={p.icon} />}</div>

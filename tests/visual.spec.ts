@@ -27,3 +27,12 @@ for (const scheme of ['light', 'dark'] as const) {
     await expect(page).toHaveScreenshot(`home-a11y-${scheme}.png`, { style });
   });
 }
+
+for (const scheme of ['light', 'dark'] as const) {
+  test(`visual › lab matches baseline (${scheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
+    await page.goto('/lab/');
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page).toHaveScreenshot(`lab-${scheme}.png`, { fullPage: true, mask: [page.locator('footer')] });
+  });
+}
