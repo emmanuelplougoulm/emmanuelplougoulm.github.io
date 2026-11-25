@@ -1,5 +1,5 @@
 // Tout le contenu éditable du site est ici, en anglais et en français côte à côte.
-// Règle : rien d'interne sur le poste actuel (aucun nom d'entreprise, client, produit ou collègue).
+// Règle : rien d'interne sur le poste actuel (aucun client, produit ou collègue). Les employeurs sont nommés, comme sur LinkedIn.
 import type { Lang, T } from '../i18n';
 
 export const links = {
@@ -105,7 +105,7 @@ const phases: (Loc<Omit<Phase, 'roles'>> & { roles: (Loc<Role> & { id?: string }
       {
         when: { en: '2025 — now', fr: "2025 — aujourd'hui" },
         title: { en: 'SDET / Functional QA', fr: 'SDET / QA fonctionnel' },
-        where: { en: 'SaaS platform, Paris', fr: 'Plateforme SaaS, Paris' },
+        where: 'QuickSign, Paris',
         did: {
           en: 'Owner of front-end quality: manual testing and Playwright automation, visual regression, test strategy.',
           fr: 'Responsable de la qualité front-end : tests manuels et automatisation Playwright, régression visuelle, stratégie de test.',
@@ -134,7 +134,7 @@ const phases: (Loc<Omit<Phase, 'roles'>> & { roles: (Loc<Role> & { id?: string }
       {
         when: '2024 — 2025',
         title: { en: 'Software engineer & PO', fr: 'Ingénieur logiciel et PO' },
-        where: { en: 'Code-analysis startup', fr: "Startup d'analyse de code" },
+        where: 'TrustInSoft, Paris',
         did: {
           en: 'Desktop client in React and Electron, from Figma to first release.',
           fr: 'Client desktop en React et Electron, de Figma à la première version.',
@@ -143,7 +143,7 @@ const phases: (Loc<Omit<Phase, 'roles'>> & { roles: (Loc<Role> & { id?: string }
       {
         when: '2022 — 2023',
         title: { en: 'Fullstack developer', fr: 'Développeur fullstack' },
-        where: { en: 'Payments fintech', fr: 'Fintech de paiement' },
+        where: 'Lemonway, Paris',
         did: {
           en: 'First Playwright suite, Storybook library of 30+ components, Vue 2 → 3 migration.',
           fr: 'Première suite Playwright, bibliothèque Storybook de plus de 30 composants, migration de Vue 2 à 3.',
@@ -152,7 +152,7 @@ const phases: (Loc<Omit<Phase, 'roles'>> & { roles: (Loc<Role> & { id?: string }
       {
         when: '2018 — 2022',
         title: { en: 'Fullstack developer', fr: 'Développeur fullstack' },
-        where: { en: 'Consulting firm', fr: 'Cabinet de conseil' },
+        where: 'onepoint, Paris',
         did: {
           en: 'React and TypeScript apps, SSO, Figma designs shipped to production.',
           fr: 'Applications React et TypeScript, SSO, maquettes Figma livrées en production.',
