@@ -185,6 +185,36 @@ const experiments: Loc<Experiment>[] = [
       fr: "Aucune stratégie n'a vu le champ de recherche perdre son label : le placeholder lui donne encore un nom accessible.",
     },
   },
+  {
+    num: '06',
+    slug: '06-captures-visuelles',
+    date: { en: '25 Nov 2026', fr: '25 nov. 2026' },
+    title: {
+      en: 'Screenshot comparison: which visual defects does it catch, and at what cost?',
+      fr: 'Comparer des captures : quels défauts visuels rattrape-t-on, et à quel prix ?',
+    },
+    question: {
+      en: 'Does a screenshot suite catch what users see, without failing on what changes nothing for them? And what does it cost when the UI changes on purpose?',
+      fr: "Une suite de captures rattrape-t-elle ce que voit l'utilisateur, sans échouer sur ce qui ne change rien pour lui ? Et combien coûte-t-elle quand l'interface change volontairement ?",
+    },
+    setup: {
+      en: 'The demo shop captured three ways (full page, masked, per component) at two sizes, plus tolerance thresholds. 7 visual defects and 3 intended changes injected in the code, 5 noise sources with no code change: repeated runs, another machine, a changed price, a slow API, a hovered card.',
+      fr: "La boutique de démo capturée de trois façons (pleine page, masquée, par composant) à deux tailles, plus des seuils de tolérance. 7 défauts visuels et 3 changements voulus injectés dans le code, 5 sources de bruit sans changer le code : runs répétés, autre machine, prix modifié, API lente, carte survolée.",
+    },
+    figures: [
+      { value: '6 / 6', label: { en: 'defects visible at rest caught by a strict capture, which also failed on 3 noise sources out of 4', fr: 'défauts visibles au repos rattrapés en strict, qui échoue aussi sur 3 bruits sur 4' } },
+      { value: { en: '0.036%', fr: '0,036 %' }, label: { en: 'of pixels changed by illegible prices: a 0.1% threshold already misses them', fr: 'des pixels touchés par des prix illisibles : un seuil de 0,1 % les perd déjà' } },
+      { value: '20 / 21', label: { en: 'captures failed by running on another machine, no code change', fr: 'captures en échec sur une autre machine, sans changer le code' } },
+    ],
+    takeaway: {
+      en: 'Pixel share does not measure severity: the defect that hurts users most was the smallest. Fix the rendering machine first, mask only what is truly dynamic and test that zone another way, and capture focus states on purpose.',
+      fr: "La part de pixels ne mesure pas la gravité : le défaut le plus gênant était le plus petit. D'abord fixer la machine de rendu, ne masquer que le vraiment dynamique et tester cette zone autrement, et capturer exprès les états de focus.",
+    },
+    limit: {
+      en: 'No strategy saw the focus outline removed: a screenshot taken at rest shows no focus.',
+      fr: "Aucune stratégie n'a vu le contour de focus supprimé : une capture prise au repos ne montre aucun focus.",
+    },
+  },
 ];
 
 export function getExperiments(lang: Lang): Experiment[] {
